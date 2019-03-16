@@ -44,10 +44,10 @@ class PavementPainter():
         try:
             self.raw_image = Image.open(self.img_file)
             # self.raw_image.show("Original image")
-            self.raw_image = self.raw_image.convert("L")
-            # self.raw_image.show("Black and white image")
             self.raw_image = self.raw_image.resize((int(self.raw_image.size[1]/self.num_solenoids), self.num_solenoids))
             # self.raw_image.show("Resized image based on number of solenoids")
+            self.raw_image = self.raw_image.convert("L")
+            # self.raw_image.show("Black and white image")
             self.raw_image = self.raw_image.point(lambda i: i > 128 and 255)
             # self.raw_image.show("Binary image")
             # print(self.img_matrix)
