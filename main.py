@@ -48,10 +48,8 @@ class PavementPainter():
             # self.raw_image.show("Resized image based on number of solenoids")
             self.raw_image = self.raw_image.convert("L")
             # self.raw_image.show("Black and white image")
-            self.raw_image = self.raw_image.point(lambda i: i > 128 and 255)
+            self.raw_image = self.raw_image.point(lambda i: i > 128 and 255)    # Converts image to a binary image
             # self.raw_image.show("Binary image")
-            # print(self.img_matrix)
-            # print(self.raw_image)
         except Exception as e:
             print(e)
 
