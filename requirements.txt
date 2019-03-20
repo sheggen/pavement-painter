@@ -1,0 +1,11 @@
+RPI.GPIO
+adafruit-blinka
+
+
+adafruit-circuitpython-lis3dh
+circuitpython-build-tools
+
+
+adafruit-circuitpython-pca9685
+numpy
+PIL
