@@ -5,21 +5,23 @@ This file sets up the virtual environment.
 Run "source setup.sh" each time you want to run the app.
 '''
 
-pip install virtualenv
+# Do the following at the terminal BEFORE running this script:
+# sudo apt-get update
+# sudo apt-get install python-dev python-pip
+# sudo pip3 install --upgrade pip
+
+
+pip3 install virtualenv
 
 # Establish a virtual environment and activate it
 if [ ! -d venv ]
 then
-  virtualenv venv
+  python3 -m virtualenv venv
 fi
 
 . venv/bin/activate
 
 
-#sudo apt-get install python3-pip
-#sudo pip3 install --upgrade setuptools
-
-#pip3 install --upgrade pip
 
 pip3 install -r requirements.txt
 
