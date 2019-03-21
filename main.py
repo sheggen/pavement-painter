@@ -33,11 +33,17 @@ class PavementPainter():
         
 
     def init_PCAs(self):
+        """
+        Sets up correct number of PCAs, assumes ordered addressing starting at 0x40
+        and goes up by 1 for each additional PCA.
+
+        :return: None
+        """
         num_PCAs = self.num_solenoids // 16
         last_PCA_num_solenoids = self.num_solenoids % 16
         
         for i in range(num_PCAs):
-            self.PCAs.append(PCA_9685(16, 0x40+i))
+            self.PCAs.append(PCA_9685(16, 0x40+i))      # Auto add 1 for each PCA
         if last_PCA_num_solenoids:
             self.PCAs.append(PCA_9685(last_PCA_num_solenoids, 0x40+i))
         
@@ -109,8 +115,11 @@ class PavementPainter():
         :param solenoid: solenoid address
         :return: None
         """
-        print("Firing PCA: ", solenoid//16, ", Solenoid: ", solenoid % 16)
-        self.PCAs[solenoid//16].fire_away(solenoid % 16)   # Picks the right PCA, then fires the right solenoid
+
+        pca = solenoid//66
+        solenoid_in_pca = solenoid % 16
+        print("Firing PCA: ", pca , ", Solenoid: ", solenoid_in_pca )
+        self.PCAs[pca].fire_away(solenoid_in_pca)   # Picks the right PCA, then fires the right solenoid
         
 
-PavementPainter()
+PavementPainter()   # GO!

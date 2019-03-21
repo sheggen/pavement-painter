@@ -11,7 +11,7 @@ Run "source setup.sh" each time you want to run the app.
 # sudo pip3 install --upgrade pip
 
 
-pip3 install virtualenv
+python3 -m pip install --user virtualenv
 
 # Establish a virtual environment and activate it
 if [ ! -d venv ]
