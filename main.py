@@ -18,9 +18,9 @@ class PavementPainter():
         """
         Initializes a new Pavement Painter object and starts it painting.
         """
-        self.num_solenoids = 25 #Set to the number of solenoids to fire
-        self.speed = 3 # TODO: Control externally by speed of vehicle
-        self.fire_rate = 1 # How long to keep the solenoid open
+        self.num_solenoids = 15 #Set to the number of solenoids to fire
+        self.speed = 1 # TODO: Control externally by speed of vehicle
+        self.fire_rate = 3 # How long to keep the solenoid open
         self.raw_image = None
         self.img_file = "test_img.png"
         self.img_matrix = []
@@ -33,20 +33,15 @@ class PavementPainter():
         
 
     def init_PCAs(self):
-        """
-        Sets up correct number of PCAs, assumes ordered addressing starting at 0x40
-        and goes up by 1 for each additional PCA.
+        num_sols = self.num_solenoids
+        addr = 0x40
+        #self.PCAs.append(PCA_9685(16, addr))
 
-        :return: None
-        """
-        num_PCAs = self.num_solenoids // 16
-        last_PCA_num_solenoids = self.num_solenoids % 16
-        
-        for i in range(num_PCAs):
-            self.PCAs.append(PCA_9685(16, 0x40+i))      # Auto add 1 for each PCA
-        if last_PCA_num_solenoids:
-            self.PCAs.append(PCA_9685(last_PCA_num_solenoids, 0x40+i))
-        
+        while num_sols > 0:
+            
+            self.PCAs.append(PCA_9685(16, addr))
+            num_sols -= 16
+            addr += 1
         
     def adjust_speed(self, speed):
         """
@@ -68,13 +63,14 @@ class PavementPainter():
         try:
             self.raw_image = Image.open(self.img_file)
             # self.raw_image.show("Original image")
-            self.raw_image = self.raw_image.resize((self.num_solenoids, int(self.raw_image.size[1]/self.num_solenoids)))
+            new_height = int(self.num_solenoids *(self.raw_image.size[1]/self.raw_image.size[0]))
+            self.raw_image = self.raw_image.resize((self.num_solenoids, new_height))
             # self.raw_image.show("Resized image based on number of solenoids")
             self.raw_image = self.raw_image.convert("L")
             # self.raw_image.show("Black and white image")
             self.raw_image = self.raw_image.point(lambda i: i > 128 and 255)    # Converts image to a binary image
-            self.raw_image.show("Binary image")
-            # print(numpy.array(self.raw_image))
+            # self.raw_image.show("Binary image")
+            print(numpy.array(self.raw_image))
         except Exception as e:
             print(e)
 
@@ -107,6 +103,7 @@ class PavementPainter():
                 time.sleep(self.speed)      # TODO: How do we handle stopping?
                 fire_list = []
                 print("------------------------------------------")
+                # adjust_speed()
 
     def fire(self, solenoid):
         """
@@ -115,11 +112,8 @@ class PavementPainter():
         :param solenoid: solenoid address
         :return: None
         """
-
-        pca = solenoid//66
-        solenoid_in_pca = solenoid % 16
-        print("Firing PCA: ", pca , ", Solenoid: ", solenoid_in_pca )
-        self.PCAs[pca].fire_away(solenoid_in_pca)   # Picks the right PCA, then fires the right solenoid
+        print("Firing PCA: ", solenoid//16, ", Solenoid: ", solenoid % 16)
+        self.PCAs[solenoid//16].fire_away(solenoid % 16)   # Picks the right PCA, then fires the right solenoid
         
 
-PavementPainter()   # GO!
+PavementPainter()

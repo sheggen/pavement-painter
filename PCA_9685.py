@@ -14,9 +14,10 @@ class PCA_9685():
         self.i2c_bus = busio.I2C(SCL, SDA)
         try:
             self.pca = PCA9685(self.i2c_bus, address = addr)
+            print("PCA found on: ", addr)
         except:
             print("Failed to initialize PCA on address: ", addr)
-        # self.pca.frequency = 60 # Can be used to easily control on/off time of Solenoid?
+        self.pca.frequency = 60 # Can be used to easily control on/off time of Solenoid?
         self.num_solenoids = num_solenoids
 
 
@@ -40,3 +41,11 @@ class PCA_9685():
         """
         solenoid_channel = self.pca.channels[solenoid]
         solenoid_channel.duty_cycle = 0x0000  # unfire solenoid
+
+
+if __name__ == "__main__":
+    x = PCA_9685(16, 0x40)
+    
+    while True:
+        pass
+        x.fire_away(3)
