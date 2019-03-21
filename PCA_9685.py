@@ -4,9 +4,12 @@ from adafruit_pca9685 import PCA9685
 import time
 
 class PCA_9685():
-    def __init__(self, num_solenoids):        
+    def __init__(self, num_solenoids, addr):        
         self.i2c_bus = busio.I2C(SCL, SDA)
-        self.pca = PCA9685(self.i2c_bus)
+        try:
+            self.pca = PCA9685(self.i2c_bus, address = addr)
+        except:
+            print("Failed to initialize PCA on address: ", addr)
         self.pca.frequency = 25 # Can be used to easily control on/off time of Solenoid!
         self.num_solenoids = num_solenoids
 

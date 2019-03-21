@@ -37,9 +37,9 @@ class PavementPainter():
         last_PCA_num_solenoids = self.num_solenoids % 16
         
         for i in range(num_PCAs):
-            self.PCAs.append(PCA_9685(16))
+            self.PCAs.append(PCA_9685(16, 0x40+i))
         if last_PCA_num_solenoids:
-            self.PCAs.append(PCA_9685(last_PCA_num_solenoids))
+            self.PCAs.append(PCA_9685(last_PCA_num_solenoids, 0x40+i))
         
         
     def adjust_speed(self, speed):
@@ -62,7 +62,7 @@ class PavementPainter():
         try:
             self.raw_image = Image.open(self.img_file)
             # self.raw_image.show("Original image")
-            self.raw_image = self.raw_image.resize((int(self.raw_image.size[1]/self.num_solenoids), self.num_solenoids))
+            self.raw_image = self.raw_image.resize((self.num_solenoids, int(self.raw_image.size[1]/self.num_solenoids)))
             # self.raw_image.show("Resized image based on number of solenoids")
             self.raw_image = self.raw_image.convert("L")
             # self.raw_image.show("Black and white image")
@@ -85,17 +85,15 @@ class PavementPainter():
         # TODO Run infinitely
         # FIXME: This is not doing what you think it's doing
         for pixel in numpy.nditer(numpy.array(self.raw_image)):
-            print("\n", pixel, end=" ")
             if pixel == 255:   # 0 for negative space; 255 for positive space
                 self.fire(counter%self.num_solenoids)
                 fire_list.append(counter%self.num_solenoids)
             counter += 1
             if counter == self.num_solenoids:
-                print("\nCounter reached: ", counter)
                 time.sleep(self.fire_rate)      # TODO: How do we handle stopping?
                 counter = 0
                 # print("--------------------------")
-                print(fire_list)                
+                # print(fire_list)                
                 # print("--------------------------")
 
                 for solenoid in fire_list:
