@@ -18,9 +18,9 @@ class PavementPainter():
         """
         Initializes a new Pavement Painter object and starts it painting.
         """
-        self.num_solenoids = 15 #Set to the number of solenoids to fire
-        self.speed = 1 # TODO: Control externally by speed of vehicle
-        self.fire_rate = 3 # How long to keep the solenoid open
+        self.num_solenoids = 45 #Set to the number of solenoids to fire
+        self.speed = .5 # TODO: Control externally by speed of vehicle
+        self.fire_rate = .5 # How long to keep the solenoid open
         self.raw_image = None
         self.img_file = "test_img.png"
         self.img_matrix = []
@@ -35,7 +35,6 @@ class PavementPainter():
     def init_PCAs(self):
         num_sols = self.num_solenoids
         addr = 0x40
-        #self.PCAs.append(PCA_9685(16, addr))
 
         while num_sols > 0:
             
@@ -102,7 +101,7 @@ class PavementPainter():
                     self.PCAs[solenoid//16].seize_fire(solenoid % 16)
                 time.sleep(self.speed)      # TODO: How do we handle stopping?
                 fire_list = []
-                print("------------------------------------------")
+                #print("------------------------------------------")
                 # adjust_speed()
 
     def fire(self, solenoid):
@@ -112,7 +111,7 @@ class PavementPainter():
         :param solenoid: solenoid address
         :return: None
         """
-        print("Firing PCA: ", solenoid//16, ", Solenoid: ", solenoid % 16)
+        #print("Firing PCA: ", solenoid//16, ", Solenoid: ", solenoid % 16)
         self.PCAs[solenoid//16].fire_away(solenoid % 16)   # Picks the right PCA, then fires the right solenoid
         
 
