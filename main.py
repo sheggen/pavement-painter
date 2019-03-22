@@ -8,7 +8,7 @@
 
 from PIL import Image
 import numpy
-import time
+import time, datetime
 from PCA_9685 import PCA_9685
 numpy.set_printoptions(threshold=numpy.nan)  # for printing array during testing
 
@@ -18,7 +18,7 @@ class PavementPainter():
         """
         Initializes a new Pavement Painter object and starts it painting.
         """
-        self.num_solenoids = 45 #Set to the number of solenoids to fire
+        self.num_solenoids = 16*3 #Set to the number of solenoids to fire
         self.speed = .5 # TODO: Control externally by speed of vehicle
         self.fire_rate = .5 # How long to keep the solenoid open
         self.raw_image = None
@@ -28,7 +28,8 @@ class PavementPainter():
         
         self.parse_image()
         self.init_PCAs()
-        self.paint()
+        while True:
+            self.paint()
         
         
 
@@ -86,22 +87,21 @@ class PavementPainter():
         # TODO Run infinitely
         # FIXME: This is not doing what you think it's doing
         for pixel in numpy.nditer(numpy.array(self.raw_image)):
-            if pixel == 255:   # 0 for negative space; 255 for positive space
-                self.fire(counter%self.num_solenoids)
+            if pixel == 255:   # 0 for negative space; 255 for positive space                
                 fire_list.append(counter%self.num_solenoids)
             counter += 1
             if counter == self.num_solenoids:
-                time.sleep(self.fire_rate)      # TODO: How do we handle stopping?
-                counter = 0
-                # print("--------------------------")
-                # print(fire_list)                
-                # print("--------------------------")
-
+                st = datetime.datetime.now()
                 for solenoid in fire_list:
-                    self.PCAs[solenoid//16].seize_fire(solenoid % 16)
+                    self.fire(solenoid)
+                time.sleep(self.fire_rate)      # TODO: How do we handle stopping?
+                for solenoid in fire_list:
+                    self.stop_fire(solenoid)
                 time.sleep(self.speed)      # TODO: How do we handle stopping?
+                print("Took ", datetime.datetime.now() - st, " seconds to fire ", self.num_solenoids, " solenoids")
+                counter = 0
                 fire_list = []
-                #print("------------------------------------------")
+                #print("--------------------------------------")
                 # adjust_speed()
 
     def fire(self, solenoid):
@@ -114,5 +114,7 @@ class PavementPainter():
         #print("Firing PCA: ", solenoid//16, ", Solenoid: ", solenoid % 16)
         self.PCAs[solenoid//16].fire_away(solenoid % 16)   # Picks the right PCA, then fires the right solenoid
         
+    def stop_fire(self, solenoid):
+        self.PCAs[solenoid//16].seize_fire(solenoid % 16)
 
 PavementPainter()
