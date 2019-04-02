@@ -87,18 +87,22 @@ class PavementPainter():
         # TODO Run infinitely
         # FIXME: This is not doing what you think it's doing
         for pixel in numpy.nditer(numpy.array(self.raw_image)):
-            if pixel == 255:   # 0 for negative space; 255 for positive space                
-                fire_list.append(counter%self.num_solenoids)
+            if pixel == 255:   # 0 for negative space; 255 for positive space
+                # Add solenoid to fire list
+                fire_list.append(counter % self.num_solenoids)
+            else:
+                # Stop solenoid if it's not being fired
+                self.stop_fire(counter % self.num_solenoids)      # will this slow it down? should we make a stop list?
             counter += 1
             if counter == self.num_solenoids:
-                st = datetime.datetime.now()
+                # st = datetime.datetime.now()
                 for solenoid in fire_list:
                     self.fire(solenoid)
-                time.sleep(self.fire_rate)      # TODO: How do we handle stopping?
-                for solenoid in fire_list:
-                    self.stop_fire(solenoid)
-                time.sleep(self.speed)      # TODO: How do we handle stopping?
-                print("Took ", datetime.datetime.now() - st, " seconds to fire ", self.num_solenoids, " solenoids")
+                # time.sleep(self.fire_rate)
+                # for solenoid in fire_list:
+                #     self.stop_fire(solenoid)
+                time.sleep(self.speed)
+                # print("Took ", datetime.datetime.now() - st, " seconds to fire ", self.num_solenoids, " solenoids")
                 counter = 0
                 fire_list = []
                 #print("--------------------------------------")
