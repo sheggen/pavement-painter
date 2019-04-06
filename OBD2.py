@@ -1,14 +1,25 @@
 import obd
 
-# connection = obd.OBD() # auto-connects to USB or RF port
-obd.logger.setLevel(obd.logging.DEBUG)
 
-ports = obd.scan_serial()      # return list of valid USB or RF ports
-print (ports)                    # ['/dev/ttyUSB0', '/dev/ttyUSB1']
-connection = obd.Async(ports[0]) # connect to the first port in the list
+class OBD2:
+    def __init__(self):
+        # obd.logger.setLevel(obd.logging.DEBUG)
+        try:
+            self.connection = obd.Async() # auto-connects to USB or RF port
+        except:
+            try:
+                self.ports = obd.scan_serial()      # return list of valid USB or RF ports
+                print (self.ports)                    # ['/dev/ttyUSB0', '/dev/ttyUSB1']
+                self.connection = obd.Async(self.ports[0]) # connect to the first port in the list
+            except:
+                pass
+        self.connection.watch(obd.commands.SPEED)
+        self.connection.start()
 
-connection.watch(obd.commands.SPEED) # keep track of the RPM
+    def get_speed(self):
+        return self.connection.query(obd.commands.SPEED) # non-blocking, returns immediately
 
-connection.start() # start the async update loop
-
-print (connection.query(obd.commands.SPEED)) # non-blocking, returns immediately
+if __name__ == "__main__":
+    o = OBD2()
+    while True:
+        print("Speed: ", o.get_speed())

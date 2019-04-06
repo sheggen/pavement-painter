@@ -10,6 +10,7 @@ from PIL import Image
 import numpy
 import time, datetime
 from PCA_9685 import PCA_9685
+import OBD2
 numpy.set_printoptions(threshold=numpy.nan)  # for printing array during testing
 
 
@@ -19,6 +20,8 @@ class PavementPainter():
         Initializes a new Pavement Painter object and starts it painting.
         """
         self.num_solenoids = 16*3 #Set to the number of solenoids to fire
+        self.solenoid_spacing = 25     # in millimeters
+        self.car_speed = 0
         self.speed = .5 # TODO: Control externally by speed of vehicle
         self.fire_rate = .5 # How long to keep the solenoid open
         self.raw_image = None
@@ -28,8 +31,11 @@ class PavementPainter():
         
         self.parse_image()
         self.init_PCAs()
+        self.odb2 = OBD2()
         while True:
             self.paint()
+            self.adjust_speed(self.odb2.get_speed())
+            # print("Speed: ", self.odb2.get_speed())
         
         
 
@@ -45,13 +51,14 @@ class PavementPainter():
         
     def adjust_speed(self, speed):
         """
-        Adjusts the speed attribute based on vehicle speed. Thread?
+        Adjusts the speed attribute based on vehicle speed.
 
-        :param speed: the speed of the vehicle, which will control painting rate
+        :param speed: the speed of the vehicle in KPH, which will control painting rate
         :return: None
         """
 
-        self.speed = speed
+        self.speed = self.solenoid_spacing/(speed*1000000/3600)
+        print(self.speed)
 
 
     def parse_image(self):
