@@ -1,11 +1,3 @@
-# TODO: Integrate with the PI, which consists of:
-    # TODO: Add a start button to call paint()
-    # TODO: Talk to the hardware through I2C
-    # TODO: Dynamically handle addressing each solenoid through I2C
-    # TODO: Handle addressing any number of solenoids with any number of port adapters
-    # TODO: Convert fire() function to actually fire solenoid
-    # TODO: Control self.speed attribute through OBDII connected to Pi
-
 from PIL import Image
 import numpy
 import time, datetime
@@ -20,26 +12,31 @@ class PavementPainter():
         Initializes a new Pavement Painter object and starts it painting.
         """
         self.num_solenoids = 16*3 #Set to the number of solenoids to fire
-        self.solenoid_spacing = 25     # in millimeters
+        self.solenoid_spacing = 9.525     # in millimeters (3/8" = 9.525 mm)
         self.car_speed = 0
-        self.speed = .5 # TODO: Control externally by speed of vehicle
+        self.fire_duration = .5
         self.fire_rate = .5 # How long to keep the solenoid open
         self.raw_image = None
         self.img_file = "test_img.png"
         self.img_matrix = []
         self.PCAs = []
-        
-        self.parse_image()
-        self.init_PCAs()
-        self.odb2 = OBD2()
+
+        # Begin the magic
+        self.odb2 = OBD2()      # Connect to OBD sensor
+        self.parse_image()      # Load image
+        self.init_PCAs()        # Ready the PCAs
+
+        # Let it rain
         while True:
             self.paint()
             self.adjust_speed(self.odb2.get_speed())
-            # print("Speed: ", self.odb2.get_speed())
-        
-        
 
     def init_PCAs(self):
+        """
+        Connects to the PCAs
+
+        :return: None
+        """
         num_sols = self.num_solenoids
         addr = 0x40
 
@@ -57,9 +54,8 @@ class PavementPainter():
         :return: None
         """
 
-        self.speed = self.solenoid_spacing/(speed*1000000/3600)
-        print(self.speed)
-
+        self.fire_duration = self.solenoid_spacing / (speed * 1000000 / 3600)
+        print(self.fire_duration)
 
     def parse_image(self):
         """
@@ -81,7 +77,6 @@ class PavementPainter():
         except Exception as e:
             print(e)
 
-
     def paint(self):
         """
         Fires solenoids based on binary image.
@@ -102,18 +97,18 @@ class PavementPainter():
                 self.stop_fire(counter % self.num_solenoids)      # will this slow it down? should we make a stop list?
             counter += 1
             if counter == self.num_solenoids:
+                self.adjust_speed()
                 # st = datetime.datetime.now()
                 for solenoid in fire_list:
                     self.fire(solenoid)
                 # time.sleep(self.fire_rate)
                 # for solenoid in fire_list:
                 #     self.stop_fire(solenoid)
-                time.sleep(self.speed)
+                time.sleep(self.fire_duration)
                 # print("Took ", datetime.datetime.now() - st, " seconds to fire ", self.num_solenoids, " solenoids")
                 counter = 0
                 fire_list = []
                 #print("--------------------------------------")
-                # adjust_speed()
 
     def fire(self, solenoid):
         """
@@ -127,5 +122,6 @@ class PavementPainter():
         
     def stop_fire(self, solenoid):
         self.PCAs[solenoid//16].seize_fire(solenoid % 16)
+
 
 PavementPainter()
