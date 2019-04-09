@@ -9,7 +9,6 @@ Run "source setup.sh" each time you want to run the app.
 # sudo apt-get update
 # sudo apt-get install python-dev python-pip
 # sudo pip3 install --upgrade pip
-# sudo apt-get install bluetooth bluez-utils blueman
 
 
 python3 -m pip install --user virtualenv
@@ -21,8 +20,6 @@ then
 fi
 
 . venv/bin/activate
-
-
 
 pip3 install -r requirements.txt
 

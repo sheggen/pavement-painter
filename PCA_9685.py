@@ -1,6 +1,6 @@
 from board import SCL, SDA
 import busio
-from adafruit_pca9685 import PCA9685
+from Adafruit_CircuitPython_PCA9685.adafruit_pca9685 import PCA9685
 import time
 
 class PCA_9685():

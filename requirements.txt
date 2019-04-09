@@ -1,11 +1,8 @@
 RPI.GPIO
 adafruit-blinka
-
 circuitpython-build-tools
 adafruit-circuitpython-lis3dh
-
 adafruit-circuitpython-pca9685
-
 numpy
 pillow
 obd

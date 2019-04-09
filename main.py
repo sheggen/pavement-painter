@@ -11,7 +11,7 @@ class PavementPainter():
         """
         Initializes a new Pavement Painter object and starts it painting.
         """
-        self.num_solenoids = 16*3 #Set to the number of solenoids to fire
+        self.num_solenoids = 45 #Set to the number of solenoids to fire
         self.solenoid_spacing = 9.525     # in millimeters (3/8" = 9.525 mm)
         self.car_speed = 0.01
         self.fire_duration = .01
@@ -79,7 +79,7 @@ class PavementPainter():
 
     def paint(self):
         """
-        Fires solenoids based on binary image.
+        Outputs one iteration of the image loaded.
 
         :return: None
         """
@@ -91,20 +91,21 @@ class PavementPainter():
             if pixel == 255:   # 0 for negative space; 255 for positive space
                 # Add solenoid to fire list
                 fire_list.append(counter % self.num_solenoids)
-            else:
+            # else:
                 # Stop solenoid if it's not being fired
-                self.stop_fire(counter % self.num_solenoids)      # will this slow it down? should we make a stop list?
+            #     self.stop_fire(counter % self.num_solenoids)      # will this slow it down? should we make a stop list?
             counter += 1
             if counter == self.num_solenoids:
                 print(fire_list)
-                print("Speed: ", self.obd2.get_speed())
                 self.adjust_speed(self.obd2.get_speed())
+                self.fire_rate = self.fire_duration  # FIXME: For testing purposes only
+                print("Speed: ", self.obd2.get_speed())
                 # st = datetime.datetime.now()
                 for solenoid in fire_list:
                     self.fire(solenoid)
-                # time.sleep(self.fire_rate)
-                # for solenoid in fire_list:
-                #     self.stop_fire(solenoid)
+                time.sleep(self.fire_rate)
+                for solenoid in fire_list:
+                    self.stop_fire(solenoid)
                 # print("Waiting: ", self.fire_duration)
                 time.sleep(self.fire_duration)
                 # print("Took ", datetime.datetime.now() - st, " seconds to fire ", self.num_solenoids, " solenoids")
