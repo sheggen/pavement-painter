@@ -1,14 +1,67 @@
 import obd
+import datetime, time
 
-# connection = obd.OBD() # auto-connects to USB or RF port
-obd.logger.setLevel(obd.logging.DEBUG)
+class OBD2():
+    """
+    Handles connection to the OBD2 sensor and returns data
 
-ports = obd.scan_serial()      # return list of valid USB or RF ports
-print (ports)                    # ['/dev/ttyUSB0', '/dev/ttyUSB1']
-connection = obd.Async(ports[0]) # connect to the first port in the list
+    """
+    def __init__(self):
+        # obd.logger.setLevel(obd.logging.DEBUG)
+        try:
+            self.connection = obd.Async()               # auto-connects to USB or RF port
+            self.connection.watch(obd.commands.SPEED)       # Watch the speed value from OBD2
+            self.connection.start()
+        except:
+            try:
+                # Try connecting a slightly less automatic way
+                self.ports = obd.scan_serial()          # return list of valid USB or RF ports
+                print (self.ports)                      # ['/dev/ttyUSB0', '/dev/ttyUSB1']
+                self.connection = obd.Async(self.ports[0])  # connect to the first port in the list
+                self.connection.watch(obd.commands.SPEED)       # Watch the speed value from OBD2
+                self.connection.start()
+            except:
+                print("Faking it")
+                self.fake_it()
+        
 
-connection.watch(obd.commands.SPEED) # keep track of the RPM
+    def get_speed(self):
+        """
+        Returns the speed from the OBD2
 
-connection.start() # start the async update loop
-
-print (connection.query(obd.commands.SPEED)) # non-blocking, returns immediately
+        :return: speed of the vehicle in kmph
+        """
+        try:
+            return int(str(self.connection.query(obd.commands.SPEED)).split(" "))  # non-blocking, returns immediately
+        except:
+            return self.fake_it()
+            
+            
+    def fake_it(self):
+        """
+        Fake the speed using random numbers.
+        
+        return: Random quasirandom int between 1 - 150
+        """
+        import random
+        return random.randint(1, 150)
+        
+            
+if __name__ == "__main__":
+    """
+    Writes speed, date, time, and conversion to shots per second to a file
+    """
+    o = OBD2()
+    while True:
+        f = open("logger.txt", "a")
+        s = str(o.get_speed())
+        t = str(datetime.datetime.now())
+        # print("Speed: ", s)
+        f.write(t + ", " + s + ", ")
+        try:
+            f.write(str(9.525/(int(s.split(" ")[0])*1000000/3600)))
+        except:
+            pass
+        f.write("\n")
+        f.close()
+        time.sleep(1)

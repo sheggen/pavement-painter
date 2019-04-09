@@ -1,15 +1,8 @@
-# TODO: Integrate with the PI, which consists of:
-    # TODO: Add a start button to call paint()
-    # TODO: Talk to the hardware through I2C
-    # TODO: Dynamically handle addressing each solenoid through I2C
-    # TODO: Handle addressing any number of solenoids with any number of port adapters
-    # TODO: Convert fire() function to actually fire solenoid
-    # TODO: Control self.speed attribute through OBDII connected to Pi
-
 from PIL import Image
 import numpy
 import time, datetime
 from PCA_9685 import PCA_9685
+from OBD2 import *
 numpy.set_printoptions(threshold=numpy.nan)  # for printing array during testing
 
 
@@ -19,21 +12,31 @@ class PavementPainter():
         Initializes a new Pavement Painter object and starts it painting.
         """
         self.num_solenoids = 16*3 #Set to the number of solenoids to fire
-        self.speed = .5 # TODO: Control externally by speed of vehicle
-        self.fire_rate = .5 # How long to keep the solenoid open
+        self.solenoid_spacing = 9.525     # in millimeters (3/8" = 9.525 mm)
+        self.car_speed = 0.01
+        self.fire_duration = .01
+        self.fire_rate = .01 # How long to keep the solenoid open
         self.raw_image = None
         self.img_file = "test_img.png"
         self.img_matrix = []
         self.PCAs = []
-        
-        self.parse_image()
-        self.init_PCAs()
+
+        # Begin the magic
+        self.obd2 = OBD2()      # Connect to OBD sensor
+        self.parse_image()      # Load image
+        self.init_PCAs()        # Ready the PCAs
+
+        # Let it rain
         while True:
             self.paint()
-        
-        
+            
 
     def init_PCAs(self):
+        """
+        Connects to the PCAs
+
+        :return: None
+        """
         num_sols = self.num_solenoids
         addr = 0x40
 
@@ -45,14 +48,14 @@ class PavementPainter():
         
     def adjust_speed(self, speed):
         """
-        Adjusts the speed attribute based on vehicle speed. Thread?
+        Adjusts the speed attribute based on vehicle speed.
 
-        :param speed: the speed of the vehicle, which will control painting rate
+        :param speed: the speed of the vehicle in KPH, which will control painting rate
         :return: None
         """
 
-        self.speed = speed
-
+        self.fire_duration = self.solenoid_spacing / (speed * 10000 / 3600)
+        print("Fire duration: ", self.fire_duration)
 
     def parse_image(self):
         """
@@ -74,7 +77,6 @@ class PavementPainter():
         except Exception as e:
             print(e)
 
-
     def paint(self):
         """
         Fires solenoids based on binary image.
@@ -84,25 +86,31 @@ class PavementPainter():
 
         counter = 0
         fire_list = []
-        # TODO Run infinitely
-        # FIXME: This is not doing what you think it's doing
+        
         for pixel in numpy.nditer(numpy.array(self.raw_image)):
-            if pixel == 255:   # 0 for negative space; 255 for positive space                
-                fire_list.append(counter%self.num_solenoids)
+            if pixel == 255:   # 0 for negative space; 255 for positive space
+                # Add solenoid to fire list
+                fire_list.append(counter % self.num_solenoids)
+            else:
+                # Stop solenoid if it's not being fired
+                self.stop_fire(counter % self.num_solenoids)      # will this slow it down? should we make a stop list?
             counter += 1
             if counter == self.num_solenoids:
-                st = datetime.datetime.now()
+                print(fire_list)
+                print("Speed: ", self.obd2.get_speed())
+                self.adjust_speed(self.obd2.get_speed())
+                # st = datetime.datetime.now()
                 for solenoid in fire_list:
                     self.fire(solenoid)
-                time.sleep(self.fire_rate)      # TODO: How do we handle stopping?
-                for solenoid in fire_list:
-                    self.stop_fire(solenoid)
-                time.sleep(self.speed)      # TODO: How do we handle stopping?
-                print("Took ", datetime.datetime.now() - st, " seconds to fire ", self.num_solenoids, " solenoids")
+                # time.sleep(self.fire_rate)
+                # for solenoid in fire_list:
+                #     self.stop_fire(solenoid)
+                # print("Waiting: ", self.fire_duration)
+                time.sleep(self.fire_duration)
+                # print("Took ", datetime.datetime.now() - st, " seconds to fire ", self.num_solenoids, " solenoids")
                 counter = 0
                 fire_list = []
                 #print("--------------------------------------")
-                # adjust_speed()
 
     def fire(self, solenoid):
         """
@@ -111,10 +119,11 @@ class PavementPainter():
         :param solenoid: solenoid address
         :return: None
         """
-        #print("Firing PCA: ", solenoid//16, ", Solenoid: ", solenoid % 16)
+        # print("Firing PCA: ", solenoid//16, ", Solenoid: ", solenoid % 16)
         self.PCAs[solenoid//16].fire_away(solenoid % 16)   # Picks the right PCA, then fires the right solenoid
         
     def stop_fire(self, solenoid):
         self.PCAs[solenoid//16].seize_fire(solenoid % 16)
+
 
 PavementPainter()
