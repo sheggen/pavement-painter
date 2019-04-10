@@ -8,6 +8,9 @@ class OBD2():
     """
     def __init__(self):
         # obd.logger.setLevel(obd.logging.DEBUG)
+        self.fake_speed = 10 # For testing only
+        self.up = True       # For testing only
+        
         try:
             self.connection = obd.Async()               # auto-connects to USB or RF port
             self.connection.watch(obd.commands.SPEED)       # Watch the speed value from OBD2
@@ -22,6 +25,7 @@ class OBD2():
                 self.connection.start()
             except:
                 print("Faking it")
+                
                 self.fake_it()
         
 
@@ -43,8 +47,14 @@ class OBD2():
         
         return: Random quasirandom int between 1 - 150
         """
-        import random
-        return random.randint(1, 150)
+        
+        if self.fake_speed == 100 or self.fake_speed == 5:
+            self.up = not self.up
+        if self.up:
+            self.fake_speed += 1
+        else:
+            self.fake_speed -= 1
+        return self.fake_speed
         
             
 if __name__ == "__main__":
@@ -59,7 +69,7 @@ if __name__ == "__main__":
         # print("Speed: ", s)
         f.write(t + ", " + s + ", ")
         try:
-            f.write(str(9.525/(int(s.split(" ")[0])*1000000/3600)))
+            f.write(str(9.525/(int(s.split(" ")[0])*1000/3600)))
         except:
             pass
         f.write("\n")

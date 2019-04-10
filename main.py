@@ -25,7 +25,9 @@ class PavementPainter():
         self.obd2 = OBD2()      # Connect to OBD sensor
         self.parse_image()      # Load image
         self.init_PCAs()        # Ready the PCAs
-
+        
+        self.init_solenoids()
+        
         # Let it rain
         while True:
             self.paint()
@@ -45,6 +47,18 @@ class PavementPainter():
             self.PCAs.append(PCA_9685(16, addr))
             num_sols -= 16
             addr += 1
+    
+    def init_solenoids(self):
+        for i in range(self.num_solenoids):
+            self.stop_fire(i)
+            time.sleep(.01)
+        input("Press any key to begin")
+        #print("Firing all")
+        for i in range(self.num_solenoids):
+            self.fire(i)
+            time.sleep(1)        
+            self.stop_fire(i)
+        print("Stopping all")
         
     def adjust_speed(self, speed):
         """
@@ -54,8 +68,8 @@ class PavementPainter():
         :return: None
         """
 
-        self.fire_duration = self.solenoid_spacing / (speed * 10000 / 3600)
-        print("Fire duration: ", self.fire_duration)
+        self.fire_duration = self.solenoid_spacing / (speed * 1000 / 3600)
+        print("Speed: ", speed, ", Fire duration: ", self.fire_duration)
 
     def parse_image(self):
         """
@@ -79,7 +93,7 @@ class PavementPainter():
 
     def paint(self):
         """
-        Outputs one iteration of the image loaded.
+        Fires solenoids based on binary image.
 
         :return: None
         """
@@ -91,23 +105,23 @@ class PavementPainter():
             if pixel == 255:   # 0 for negative space; 255 for positive space
                 # Add solenoid to fire list
                 fire_list.append(counter % self.num_solenoids)
-            # else:
+            else:
                 # Stop solenoid if it's not being fired
-            #     self.stop_fire(counter % self.num_solenoids)      # will this slow it down? should we make a stop list?
+                self.stop_fire(counter % self.num_solenoids)      # will this slow it down? should we make a stop list?
             counter += 1
             if counter == self.num_solenoids:
                 print(fire_list)
-                self.adjust_speed(self.obd2.get_speed())
-                self.fire_rate = self.fire_duration  # FIXME: For testing purposes only
-                print("Speed: ", self.obd2.get_speed())
+                new_speed = self.obd2.get_speed()
+                # print("Speed: ", new_speed)
+                self.adjust_speed(new_speed)
                 # st = datetime.datetime.now()
                 for solenoid in fire_list:
                     self.fire(solenoid)
-                time.sleep(self.fire_rate)
-                for solenoid in fire_list:
-                    self.stop_fire(solenoid)
-                # print("Waiting: ", self.fire_duration)
                 time.sleep(self.fire_duration)
+                # for solenoid in fire_list:
+                #    self.stop_fire(solenoid)
+                # print("Waiting: ", self.fire_duration)
+                # time.sleep(self.fire_duration)
                 # print("Took ", datetime.datetime.now() - st, " seconds to fire ", self.num_solenoids, " solenoids")
                 counter = 0
                 fire_list = []
