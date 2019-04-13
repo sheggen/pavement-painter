@@ -8,7 +8,7 @@ class OBD2():
     """
     def __init__(self):
         # obd.logger.setLevel(obd.logging.DEBUG)
-        self.fake_speed = 10 # For testing only
+        self.fake_speed = 80 # For testing only
         self.up = True       # For testing only
         
         try:
@@ -25,7 +25,6 @@ class OBD2():
                 self.connection.start()
             except:
                 print("Faking it")
-                
                 self.fake_it()
         
 
@@ -43,12 +42,12 @@ class OBD2():
             
     def fake_it(self):
         """
-        Fake the speed using random numbers.
+        Fake the speed for testing only.
         
-        return: Random quasirandom int between 1 - 150
+        return: int between 5 - 100
         """
-        
-        if self.fake_speed == 100 or self.fake_speed == 5:
+               
+        if self.fake_speed == 85 or self.fake_speed == 75:
             self.up = not self.up
         if self.up:
             self.fake_speed += 1

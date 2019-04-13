@@ -3,8 +3,9 @@ import numpy
 import time, datetime
 from PCA_9685 import PCA_9685
 from OBD2 import *
-numpy.set_printoptions(threshold=numpy.nan)  # for printing array during testing
+#numpy.set_printoptions(threshold=numpy.nan)  # for printing array during testing
 
+import RPi.GPIO as GPIO
 
 class PavementPainter():    
     def __init__(self):
@@ -13,25 +14,97 @@ class PavementPainter():
         """
         self.num_solenoids = 45 #Set to the number of solenoids to fire
         self.solenoid_spacing = 9.525     # in millimeters (3/8" = 9.525 mm)
+        self.scale_factor = 10000      # 1000000 would print "to scale"
         self.car_speed = 0.01
         self.fire_duration = .01
         self.fire_rate = .01 # How long to keep the solenoid open
         self.raw_image = None
-        self.img_file = "test_img.png"
+        #self.img_file = "WAVEY_LINES.jpg"
+        #self.img_file = "Dandelion.jpg"
+        self.img_file = "IMAGE.jpg"
+
         self.img_matrix = []
         self.PCAs = []
+        
+        self.initialize_solenoids_button = 13        
+        self.start_button = 19
+        self.stop_button = 26
+        self.lift_up_button = 12
+        self.lift_down_button = 6
+        self.speed_up_button = 23
+        self.speed_down_button = 24
+        
+        self.dir_L = 16
+        self.dir_R = 20
+        #self.enable_lift = 21
 
         # Begin the magic
+        self.init_GPIO()
         self.obd2 = OBD2()      # Connect to OBD sensor
         self.parse_image()      # Load image
         self.init_PCAs()        # Ready the PCAs
         
-        self.init_solenoids()
-        
+        # self.init_solenoids()
+        self.last_button_state = 0   # 0 = not firing, 1 = firing
         # Let it rain
         while True:
-            self.paint()
+            time.sleep(.01)
+            self.init_GPIO()
+            # Lift up/down buttons
+            while GPIO.input(self.lift_up_button):
+                #print("Going up?")
+                #GPIO.output(self.enable_lift, GPIO.HIGH)
+                GPIO.output(self.dir_L, GPIO.HIGH)
+                GPIO.output(self.dir_R, GPIO.LOW)
+            while GPIO.input(self.lift_down_button):
+                #print("Going down?")
+                #GPIO.output(self.enable_lift, GPIO.HIGH)
+                GPIO.output(self.dir_R, GPIO.HIGH)
+                GPIO.output(self.dir_L, GPIO.LOW)
+            # print("Stopping lift")
+            GPIO.output(self.dir_R, GPIO.LOW)
+            GPIO.output(self.dir_L, GPIO.LOW)
             
+            # Start, stop, and initialize buttons
+            if GPIO.input(self.initialize_solenoids_button): # Initialize solenoids
+                self.init_solenoids()
+            if GPIO.input(self.stop_button):   # Stop all solenoids
+                self.last_button_state = 0
+                self.stop_all()
+            if not GPIO.input(self.initialize_solenoids_button) and not GPIO.input(self.stop_button) and not GPIO.input(self.start_button):  # keep firing if already firing
+                if self.last_button_state:
+                    self.paint()
+            if GPIO.input(self.start_button):   # Start all solenoids
+                self.last_button_state = 1 
+                self.paint()
+            
+            # Speed adjust buttons
+            if not self.last_button_state:
+                if GPIO.input(self.speed_up_button):
+                    self.scale_factor += 100
+                    print("Speed up: ", self.scale_factor)
+                if GPIO.input(self.speed_down_button):
+                    self.scale_factor -= 100
+                    print("Speed down: ", self.scale_factor)
+            GPIO.cleanup()
+            
+    def init_GPIO(self):
+        
+        GPIO.setmode(GPIO.BCM) # Broadcom pin-numbering scheme
+        
+        GPIO.setup(18, GPIO.OUT)   # Using 18 as power
+        GPIO.output(18, GPIO.HIGH)
+        GPIO.setup(self.initialize_solenoids_button, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+        GPIO.setup(self.start_button, GPIO.IN, pull_up_down=GPIO.PUD_DOWN) # Button pin set as input w/ pull-up
+        GPIO.setup(self.stop_button, GPIO.IN, pull_up_down=GPIO.PUD_DOWN) # Button pin set as input w/ pull-up
+        
+        #GPIO.setup(self.enable_lift, GPIO.OUT)
+        GPIO.setup(self.dir_L, GPIO.OUT)
+        GPIO.setup(self.dir_R, GPIO.OUT)
+        GPIO.setup(self.lift_up_button, GPIO.IN, pull_up_down=GPIO.PUD_DOWN) # Button pin set as input w/ pull-up
+        GPIO.setup(self.lift_down_button, GPIO.IN, pull_up_down=GPIO.PUD_DOWN) # Button pin set as input w/ pull-up
+        GPIO.setup(self.speed_up_button, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+        GPIO.setup(self.speed_down_button, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
     def init_PCAs(self):
         """
@@ -48,11 +121,14 @@ class PavementPainter():
             num_sols -= 16
             addr += 1
     
-    def init_solenoids(self):
+    def stop_all(self):
         for i in range(self.num_solenoids):
             self.stop_fire(i)
-            time.sleep(.01)
-        input("Press any key to begin")
+            #time.sleep(.01)
+    
+    def init_solenoids(self):
+        self.stop_all()
+        # input("Press any key to begin")
         #print("Firing all")
         for i in range(self.num_solenoids):
             self.fire(i)
@@ -68,7 +144,7 @@ class PavementPainter():
         :return: None
         """
 
-        self.fire_duration = self.solenoid_spacing / (speed * 1000 / 3600)
+        self.fire_duration = self.solenoid_spacing / (speed * self.scale_factor / 3600)
         print("Speed: ", speed, ", Fire duration: ", self.fire_duration)
 
     def parse_image(self):
@@ -102,26 +178,34 @@ class PavementPainter():
         fire_list = []
         
         for pixel in numpy.nditer(numpy.array(self.raw_image)):
-            if pixel == 255:   # 0 for negative space; 255 for positive space
+            if GPIO.input(self.speed_up_button):
+                self.scale_factor += 10
+                print("Speed up: ", self.scale_factor)
+            if GPIO.input(self.speed_down_button):
+                self.scale_factor -= 10
+                print("Speed down: ", self.scale_factor)
+            if pixel == 0:   # 0 for negative space; 255 for positive space
                 # Add solenoid to fire list
                 fire_list.append(counter % self.num_solenoids)
-            else:
+            #else:
                 # Stop solenoid if it's not being fired
-                self.stop_fire(counter % self.num_solenoids)      # will this slow it down? should we make a stop list?
+            #    self.stop_fire(counter % self.num_solenoids)      # will this slow it down? should we make a stop list?
             counter += 1
             if counter == self.num_solenoids:
-                print(fire_list)
+                
+                #print(fire_list)
                 new_speed = self.obd2.get_speed()
                 # print("Speed: ", new_speed)
                 self.adjust_speed(new_speed)
                 # st = datetime.datetime.now()
+                #if new_speed > 8:
                 for solenoid in fire_list:
                     self.fire(solenoid)
                 time.sleep(self.fire_duration)
-                # for solenoid in fire_list:
-                #    self.stop_fire(solenoid)
-                # print("Waiting: ", self.fire_duration)
-                # time.sleep(self.fire_duration)
+                for solenoid in fire_list:
+                   self.stop_fire(solenoid)
+                    # print("Waiting: ", self.fire_duration)
+                time.sleep(self.fire_duration*.05)
                 # print("Took ", datetime.datetime.now() - st, " seconds to fire ", self.num_solenoids, " solenoids")
                 counter = 0
                 fire_list = []
