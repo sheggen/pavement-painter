@@ -21,7 +21,8 @@ class PavementPainter():
         self.raw_image = None
         #self.img_file = "WAVEY_LINES.jpg"
         #self.img_file = "Dandelion.jpg"
-        self.img_file = "IMAGE.jpg"
+        #self.img_file = "IMAGE.jpg"
+        self.img_file = "pigeon2.jpg"
 
         self.img_matrix = []
         self.PCAs = []
@@ -201,11 +202,11 @@ class PavementPainter():
                 #if new_speed > 8:
                 for solenoid in fire_list:
                     self.fire(solenoid)
-                time.sleep(self.fire_duration)
+                time.sleep(self.fire_duration/8)
                 for solenoid in fire_list:
                    self.stop_fire(solenoid)
                     # print("Waiting: ", self.fire_duration)
-                time.sleep(self.fire_duration*.05)
+                time.sleep(self.fire_duration*.875)
                 # print("Took ", datetime.datetime.now() - st, " seconds to fire ", self.num_solenoids, " solenoids")
                 counter = 0
                 fire_list = []
