@@ -17,12 +17,19 @@ class PavementPainter():
         self.scale_factor = 10000      # 1000000 would print "to scale"
         self.car_speed = 0.01
         self.fire_duration = .01
-        self.fire_rate = .01 # How long to keep the solenoid open
+        self.fire_rate = .01 # How long to keep the solenoid open #NO LONGER USED
+        self.fire_percentage = .3# What percentage of time to fire/stop firing
         self.raw_image = None
         #self.img_file = "WAVEY_LINES.jpg"
         #self.img_file = "Dandelion.jpg"
         #self.img_file = "IMAGE.jpg"
         self.img_file = "pigeon2.jpg"
+        self.img_file = "passpig2j.jpg"
+        self.img_file = "American_Chestnut4.jpg"
+        self.img_file = "bird_pom_45X.jpg"
+        
+    
+
 
         self.img_matrix = []
         self.PCAs = []
@@ -198,16 +205,16 @@ class PavementPainter():
                 new_speed = self.obd2.get_speed()
                 # print("Speed: ", new_speed)
                 self.adjust_speed(new_speed)
-                # st = datetime.datetime.now()
+                st = datetime.datetime.now()
                 #if new_speed > 8:
                 for solenoid in fire_list:
                     self.fire(solenoid)
-                time.sleep(self.fire_duration/8)
+                time.sleep(self.fire_duration*self.fire_percentage)
                 for solenoid in fire_list:
                    self.stop_fire(solenoid)
                     # print("Waiting: ", self.fire_duration)
-                time.sleep(self.fire_duration*.875)
-                # print("Took ", datetime.datetime.now() - st, " seconds to fire ", self.num_solenoids, " solenoids")
+                time.sleep(self.fire_duration*(1-self.fire_percentage))
+                #print("Took ", datetime.datetime.now() - st, " seconds to fire ", self.num_solenoids, " solenoids")
                 counter = 0
                 fire_list = []
                 #print("--------------------------------------")
