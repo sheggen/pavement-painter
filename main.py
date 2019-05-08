@@ -14,7 +14,7 @@ class PavementPainter():
         """
         self.num_solenoids = 45 #Set to the number of solenoids to fire
         self.solenoid_spacing = 9.525     # in millimeters (3/8" = 9.525 mm)
-        self.scale_factor = 10000      # 1000000 would print "to scale"
+        self.scale_factor = 1000000      # 1000000 would print "to scale"
         self.car_speed = 0.01
         self.fire_duration = .01
         self.fire_rate = .01 # How long to keep the solenoid open #NO LONGER USED
@@ -26,7 +26,9 @@ class PavementPainter():
         self.img_file = "pigeon2.jpg"
         self.img_file = "passpig2j.jpg"
         self.img_file = "American_Chestnut4.jpg"
-        self.img_file = "bird_pom_45X.jpg"
+        self.img_file = "pigeon_flapping11.jpg"
+        #self.img_file = "bird_pom_45X.jpg"
+        
         
     
 
@@ -34,6 +36,7 @@ class PavementPainter():
         self.img_matrix = []
         self.PCAs = []
         
+        # GPIO pins
         self.initialize_solenoids_button = 13        
         self.start_button = 19
         self.stop_button = 26
@@ -100,8 +103,8 @@ class PavementPainter():
         
         GPIO.setmode(GPIO.BCM) # Broadcom pin-numbering scheme
         
-        GPIO.setup(18, GPIO.OUT)   # Using 18 as power
-        GPIO.output(18, GPIO.HIGH)
+        #GPIO.setup(18, GPIO.OUT)   # Using 18 as power # DID You stop doing this?
+        #GPIO.output(18, GPIO.HIGH)  # Did you stop doing this?
         GPIO.setup(self.initialize_solenoids_button, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
         GPIO.setup(self.start_button, GPIO.IN, pull_up_down=GPIO.PUD_DOWN) # Button pin set as input w/ pull-up
         GPIO.setup(self.stop_button, GPIO.IN, pull_up_down=GPIO.PUD_DOWN) # Button pin set as input w/ pull-up
@@ -203,8 +206,9 @@ class PavementPainter():
                 
                 #print(fire_list)
                 new_speed = self.obd2.get_speed()
-                # print("Speed: ", new_speed)
-                self.adjust_speed(new_speed)
+                # print("Speed in main from obd: ", new_speed)
+                if new_speed:
+                    self.adjust_speed(new_speed)
                 st = datetime.datetime.now()
                 #if new_speed > 8:
                 for solenoid in fire_list:
