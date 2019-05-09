@@ -15,6 +15,8 @@ class OBD2():
             self.connection = obd.Async()               # auto-connects to USB or RF port
             self.connection.watch(obd.commands.SPEED)       # Watch the speed value from OBD2
             self.connection.start()
+            print("Successfully connected to car")
+
         except:
             try:
                 # Try connecting a slightly less automatic way
@@ -23,9 +25,10 @@ class OBD2():
                 self.connection = obd.Async(self.ports[0])  # connect to the first port in the list
                 self.connection.watch(obd.commands.SPEED)       # Watch the speed value from OBD2
                 self.connection.start()
+                print("Successfully connected to car, attempt 2")
             except:
-                print("Faking it")
-                self.fake_it()
+                print("No car found")
+                #self.fake_it()
         
 
     def get_speed(self):
@@ -35,9 +38,16 @@ class OBD2():
         :return: speed of the vehicle in kmph
         """
         try:
-            return int(str(self.connection.query(obd.commands.SPEED)).split(" "))  # non-blocking, returns immediately
+            raw_speed = self.connection.query(obd.commands.SPEED)
+            # print(str(raw_speed.value).split(" ")[0])
+            raw_speed_2 = int(str(raw_speed.value).split(" ")[0])
+            # print(raw_speed_2)
+            if raw_speed_2:
+                return raw_speed_2  # non-blocking, returns immediately
         except:
-            return self.fake_it()
+            print("Speed not found")
+            # return self.fake_it()
+            
             
             
     def fake_it(self):
