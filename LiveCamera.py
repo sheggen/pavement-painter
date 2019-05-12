@@ -8,21 +8,44 @@ from http import server
 PAGE="""\
 <html>
 <head>
-<title>picamera MJPEG streaming demo</title>
+<title>Rainwater Printer Live View</title>
 </head>
 <body>
-<h1>PiCamera MJPEG Streaming Demo</h1>
-<img src="stream.mjpg" width="640" height="480" />
+<h1>Rainwater Printer Live View</h1>
+<img style="margin-left: auto; margin-right: auto;" src="stream.mjpg"/>
 </body>
 </html>
 """
 
-class StreamingOutput(object):
+global output
+
+class LiveCamera:
+    def __init__(self, parentPavementPainter):
+        self.parentPavementPainter = parentPavementPainter
+        self.camera_text = "Speed goes here"
+        self.startCamera()
+    
+    def startCamera(self):
+        global output
+        with picamera.PiCamera(resolution='720x540', framerate=60) as camera:
+            output = StreamingOutput()
+            camera.annotate_text = "{} KPH ({:0.2f} MPH)".format(str(self.parentPavementPainter.car_speed), self.parentPavementPainter.car_speed/0.621371)
+            camera.start_recording(output, format='mjpeg')
+            try:
+                address = ('', 8000)
+                server = StreamingServer(address, StreamingHandler)
+                server.serve_forever()
+            finally:
+                camera.stop_recording()
+    
+    
+
+class StreamingOutput():
     def __init__(self):
         self.frame = None
         self.buffer = io.BytesIO()
         self.condition = Condition()
-
+                
     def write(self, buf):
         if buf.startswith(b'\xff\xd8'):
             # New frame, copy the existing buffer's content and notify all
@@ -36,6 +59,7 @@ class StreamingOutput(object):
 
 class StreamingHandler(server.BaseHTTPRequestHandler):
     def do_GET(self):
+        global output
         if self.path == '/':
             self.send_response(301)
             self.send_header('Location', '/index.html')
@@ -76,13 +100,3 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
 class StreamingServer(socketserver.ThreadingMixIn, server.HTTPServer):
     allow_reuse_address = True
     daemon_threads = True
-
-with picamera.PiCamera(resolution='640x480', framerate=24) as camera:
-    output = StreamingOutput()
-    camera.start_recording(output, format='mjpeg')
-    try:
-        address = ('', 8000)
-        server = StreamingServer(address, StreamingHandler)
-        server.serve_forever()
-    finally:
-        camera.stop_recording()

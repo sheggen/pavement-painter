@@ -3,12 +3,14 @@ import numpy
 import time, datetime
 from PCA_9685 import PCA_9685
 from OBD2 import *
+import threading
+from LiveCamera import *
 #numpy.set_printoptions(threshold=numpy.nan)  # for printing array during testing
 
 import RPi.GPIO as GPIO
 
-class PavementPainter():    
-    def __init__(self):
+class PavementPainter(threading.Thread):    
+    def __init__(self, threadID):
         """
         Initializes a new Pavement Painter object and starts it painting.
         """
@@ -30,9 +32,6 @@ class PavementPainter():
         #self.img_file = "bird_pom_45X.jpg"
         
         
-    
-
-
         self.img_matrix = []
         self.PCAs = []
         
@@ -57,6 +56,18 @@ class PavementPainter():
         
         # self.init_solenoids()
         self.last_button_state = 0   # 0 = not firing, 1 = firing
+        
+        # Start Camera
+        self.lc = LiveCamera(self)
+        threading.Thread.__init__(self)
+        self.threadID = threadID
+        self.start()
+        
+
+    def run(self):
+        self.lc.startCamera()
+        
+        
         # Let it rain
         while True:
             time.sleep(.01)
@@ -237,4 +248,4 @@ class PavementPainter():
         self.PCAs[solenoid//16].seize_fire(solenoid % 16)
 
 
-PavementPainter()
+PavementPainter(1)
