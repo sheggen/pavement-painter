@@ -214,6 +214,12 @@ class PavementPainter(threading.Thread):
 
         :return: None
         """
+        new_speed = self.obd2.get_speed()
+        if new_speed:
+            #self.camera.camera.annotate_text = "{} KPH/{:0.2f} MPH".format(new_speed,
+             #                                                              new_speed / 0.621371)
+            self.adjust_speed(new_speed)
+
         st = time.time()
 
         # Paint from the list (slow)
@@ -221,25 +227,19 @@ class PavementPainter(threading.Thread):
 
         # Paint from the dictionary (faster?)
         self.paint_from_dict()
-        new_speed = self.obd2.get_speed()
-        if new_speed:
-
-            #self.camera.camera.annotate_text = "{} KPH/{:0.2f} MPH".format(new_speed,
-             #                                                              new_speed / 0.621371)
-
-            self.adjust_speed(new_speed)
 
         print("Paint time:", time.time() - st)
 
     def paint_from_dict(self):
         for i in range(self.new_height):             
-
             for k in self.img_dict.get(i, []):
                 self.fire(k)
-            # time.sleep((self.fire_duration * self.fire_percentage)/6)
-            for k in self.img_dict.get(i, []):
-                self.stop_fire(k)
-            # time.sleep((self.fire_duration * (1 - self.fire_percentage))/6)
+            # time.sleep((self.fire_duration * self.fire_percentage))
+
+            self.reset()  # TODO Does this work?
+            #for k in self.img_dict.get(i, []):
+            #    self.stop_fire(k)
+            # time.sleep((self.fire_duration * (1 - self.fire_percentage)))
 
 
     def paint_from_list(self):
@@ -293,3 +293,6 @@ class PavementPainter(threading.Thread):
     def stop_fire(self, solenoid):
         self.PCAs[solenoid//16].seize_fire(solenoid % 16)
 
+    def reset(self):
+        for pca in self.PCAs:
+            pca.reset()

@@ -43,6 +43,9 @@ class PCA_9685():
         solenoid_channel.duty_cycle = 0x0000  # unfire solenoid
 
 
+    def reset(self):
+        self.pca.reset()
+
 if __name__ == "__main__":
     x = PCA_9685(16, 0x40)
     
