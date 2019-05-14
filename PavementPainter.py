@@ -5,7 +5,8 @@ from PCA_9685 import PCA_9685
 from OBD2 import *
 import threading
 import RPi.GPIO as GPIO
-#numpy.set_printoptions(threshold=numpy.nan)  # for printing array during testing
+import sys
+numpy.set_printoptions(threshold=sys.maxsize)  # for printing array during testing
 
 
 class PavementPainter(threading.Thread):    
@@ -189,7 +190,7 @@ class PavementPainter(threading.Thread):
             # self.raw_image.show("Black and white image")
             self.raw_image = self.raw_image.point(lambda i: i > 128 and 255)    # Converts image to a binary image
             # self.raw_image.show("Binary image")
-            # print(numpy.array(self.raw_image))
+            print(numpy.array(self.raw_image))
 
             # Construct a sparse dictionary representing image
             self.createSparseDict()
@@ -203,12 +204,15 @@ class PavementPainter(threading.Thread):
         col_counter = 0
         for pixel in numpy.nditer(numpy.array(self.raw_image)):
             if pixel == 0:
+                print(row_counter, " ", col_counter)
                 self.img_dict[row_counter][col_counter] = 1
+                print(self.img_dict)
             col_counter += 1
             if col_counter == self.num_solenoids:
+                print("New row")
                 row_counter += 1
                 col_counter = 0
-        print(self.img_dict)
+        #print(self.img_dict)
 
 
     def paint(self):
