@@ -202,6 +202,11 @@ class PavementPainter(threading.Thread):
         # Construct a sparse dictionary representing image
         row_counter = 0
         col_counter = 0
+
+        # Construct empty dictionary with appropriate number of rows
+        for i in range(self.num_solenoids):
+            self.img_dict[i] = {}
+
         for pixel in numpy.nditer(numpy.array(self.raw_image)):
             if pixel == 0:
                 print(row_counter, " ", col_counter)
