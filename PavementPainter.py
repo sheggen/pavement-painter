@@ -184,13 +184,14 @@ class PavementPainter(threading.Thread):
             self.raw_image = Image.open(self.img_file)
             # self.raw_image.show("Original image")
             self.new_height = int(self.num_solenoids *(self.raw_image.size[1]/self.raw_image.size[0]))
+            print(self.new_height)
             self.raw_image = self.raw_image.resize((self.num_solenoids, self.new_height))
             # self.raw_image.show("Resized image based on number of solenoids")
             self.raw_image = self.raw_image.convert("L")
             # self.raw_image.show("Black and white image")
             self.raw_image = self.raw_image.point(lambda i: i > 128 and 255)    # Converts image to a binary image
             # self.raw_image.show("Binary image")
-            print(numpy.array(self.raw_image))
+            #print(numpy.array(self.raw_image))
 
             # Construct a sparse dictionary representing image
             self.createSparseDict()
@@ -200,25 +201,32 @@ class PavementPainter(threading.Thread):
 
     def createSparseDict(self):
         # Construct a sparse dictionary representing image
-        row_counter = 0
-        col_counter = 0
-
-        # Construct empty dictionary with appropriate number of rows
-        for i in range(self.new_height):
-            self.img_dict[i] = {}
-
-        for pixel in numpy.nditer(numpy.array(self.raw_image)):
-            if pixel == 0:
-                print(row_counter, " ", col_counter)
-                self.img_dict[row_counter][col_counter] = 1
-                print(self.img_dict)
-            col_counter += 1
-            if col_counter == self.num_solenoids:
-                print("New row")
-                row_counter += 1
-                col_counter = 0
+#        row_counter = 0
+#        col_counter = 0
+#
+#        # Construct empty dictionary with appropriate number of rows
+#        for i in range(self.new_height):
+#            self.img_dict[i] = {}
+#
+#        for pixel in numpy.nditer(numpy.array(self.raw_image)):
+#            if pixel == 0:
+#                #print(row_counter, " ", col_counter)
+#                self.img_dict[row_counter][col_counter] = 1
+#                #print(self.img_dict)
+#            col_counter += 1
+#            if col_counter == self.num_solenoids:
+#                #print("New row")
+#                row_counter += 1
+#                col_counter = 0
         #print(self.img_dict)
-
+        counter = 0
+        for pixel in numpy.nditer(numpy.array(self.raw_image)):
+            if pixel == 0:    
+                self.img_dict[counter//self.num_solenoids] = self.img_dict.get(counter//self.num_solenoids, [])
+                self.img_dict[counter//self.num_solenoids].append(counter%self.num_solenoids)
+            counter += 1
+        
+        
 
     def paint(self):
         """
@@ -239,16 +247,25 @@ class PavementPainter(threading.Thread):
 
 
     def paint_from_dict(self):
-        for i in range(self.new_height):
-            for k, v in self.img_dict[i]:
-                print(i, ", ", k)
-                self.fire(k)
-            time.sleep(self.fire_duration * self.fire_percentage)
-            for k, v in self.img_dict[i]:
-                print(i, ", ", k)
-                self.stop_fire(k)
-            time.sleep(self.fire_duration * (1 - self.fire_percentage))
+        for i in range(self.new_height):             
+            new_speed = self.obd2.get_speed()
+                # print("Speed in main from obd: ", new_speed)
+            if new_speed:
+                #self.camera.camera.annotate_text = "{} KPH/{:0.2f} MPH".format(new_speed,
+                 #                                                              new_speed / 0.621371)
+                # self.camera.camera.annotate_background = picamera.color.Color('#000')
 
+                self.adjust_speed(new_speed)
+            #print(self.img_dict[i])
+            for k in self.img_dict.get(i, []):
+                #print(i, ", ", k)
+                self.fire(k)
+            #time.sleep((self.fire_duration * self.fire_percentage)/6)
+            for k in self.img_dict.get(i, []):
+                #print(i, ", ", k)
+                self.stop_fire(k)
+            #time.sleep((self.fire_duration * (1 - self.fire_percentage))/6)
+        #print(self.fire_duration)
 
 
 
@@ -257,12 +274,12 @@ class PavementPainter(threading.Thread):
         fire_list = []
         for pixel in numpy.nditer(numpy.array(self.raw_image)):
 
-            if GPIO.input(self.speed_up_button):
-                self.scale_factor += 10
-                print("Speed up: ", self.scale_factor)
-            if GPIO.input(self.speed_down_button):
-                self.scale_factor -= 10
-                print("Speed down: ", self.scale_factor)
+            #if GPIO.input(self.speed_up_button):
+            #    self.scale_factor += 10
+            #    print("Speed up: ", self.scale_factor)
+            #if GPIO.input(self.speed_down_button):
+            #    self.scale_factor -= 10
+            #    print("Speed down: ", self.scale_factor)
             if pixel == 0:  # 0 for negative space; 255 for positive space
                 # Add solenoid to fire list
                 fire_list.append(counter % self.num_solenoids)
@@ -276,8 +293,8 @@ class PavementPainter(threading.Thread):
                 new_speed = self.obd2.get_speed()
                 # print("Speed in main from obd: ", new_speed)
                 if new_speed:
-                    self.camera.camera.annotate_text = "{} KPH/{:0.2f} MPH".format(new_speed,
-                                                                                   new_speed / 0.621371)
+             #       self.camera.camera.annotate_text = "{} KPH/{:0.2f} MPH".format(new_speed,
+             #                                                                      new_speed / 0.621371)
                     # self.camera.camera.annotate_background = picamera.color.Color('#000')
 
                     self.adjust_speed(new_speed)
@@ -285,11 +302,11 @@ class PavementPainter(threading.Thread):
                 # if new_speed > 8:
                 for solenoid in fire_list:
                     self.fire(solenoid)
-                time.sleep(self.fire_duration * self.fire_percentage)
+              #  time.sleep((self.fire_duration * self.fire_percentage)/6)
                 for solenoid in fire_list:
                     self.stop_fire(solenoid)
                     # print("Waiting: ", self.fire_duration)
-                time.sleep(self.fire_duration * (1 - self.fire_percentage))
+               # time.sleep((self.fire_duration * (1 - self.fire_percentage))/6)
                 # print("Took ", datetime.datetime.now() - st, " seconds to fire ", self.num_solenoids, " solenoids")
                 counter = 0
                 fire_list = []

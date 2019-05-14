@@ -2,6 +2,7 @@ import io
 import picamera
 import logging
 import socketserver
+import threading
 from threading import Condition
 from http import server
 
@@ -19,27 +20,36 @@ PAGE="""\
 
 global output
 
-class LiveCamera:
-    def __init__(self, parentPavementPainter):
-        self.parentPavementPainter = parentPavementPainter
-        self.camera_text = "Speed goes here"
+class LiveCamera(threading.Thread):
+    def __init__(self, threadID):
+        threading.Thread.__init__(self)
+        self.threadID = threadID
+        self.resolution = (1280,720)
+        self.framerate = 60
+        self.camera = picamera.PiCamera(resolution=self.resolution, framerate=self.framerate)
+        self.camera.annotate_background = picamera.color.Color('#000')
+        
+    # Run camera in it's own thread
+    def run(self):
+        print("Camera started")
         self.startCamera()
-    
+        
+        
     def startCamera(self):
+        """
+        Starts the Pi camera, for the live feed
+        """
         global output
-        with picamera.PiCamera(resolution='720x540', framerate=60) as camera:
-            output = StreamingOutput()
-            camera.annotate_text = "{} KPH ({:0.2f} MPH)".format(str(self.parentPavementPainter.car_speed), self.parentPavementPainter.car_speed/0.621371)
-            camera.start_recording(output, format='mjpeg')
-            try:
-                address = ('', 8000)
-                server = StreamingServer(address, StreamingHandler)
-                server.serve_forever()
-            finally:
-                camera.stop_recording()
-    
-    
+        output = StreamingOutput()
+        self.camera.start_recording(output, format='mjpeg', bitrate=25000000, quality=100)
+        try:
+            address = ('', 8000)
+            server = StreamingServer(address, StreamingHandler)
+            server.serve_forever()
+        finally:
+            camera.stop_recording()
 
+    
 class StreamingOutput():
     def __init__(self):
         self.frame = None

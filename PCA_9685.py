@@ -17,7 +17,7 @@ class PCA_9685():
             print("PCA found on: ", addr)
         except:
             print("Failed to initialize PCA on address: ", addr)
-        self.pca.frequency = 60 # Can be used to easily control on/off time of Solenoid?
+        self.pca.frequency = 1500
         self.num_solenoids = num_solenoids
 
 

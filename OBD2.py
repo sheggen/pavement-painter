@@ -8,7 +8,7 @@ class OBD2():
     """
     def __init__(self):
         # obd.logger.setLevel(obd.logging.DEBUG)
-        self.fake_speed = 80 # For testing only
+        self.fake_speed = 10 # For testing only
         self.up = True       # For testing only
         
         try:
@@ -45,8 +45,8 @@ class OBD2():
             if raw_speed_2:
                 return raw_speed_2  # non-blocking, returns immediately
         except:
-            print("Speed not found")
-            # return self.fake_it()
+            #print("Speed not found")
+            return self.fake_it()
             
             
             
@@ -56,8 +56,8 @@ class OBD2():
         
         return: int between 5 - 100
         """
-               
-        if self.fake_speed == 85 or self.fake_speed == 75:
+            
+        if self.fake_speed == 5 or self.fake_speed == 15:
             self.up = not self.up
         if self.up:
             self.fake_speed += 1
