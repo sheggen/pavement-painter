@@ -21,6 +21,7 @@ class PavementPainter(threading.Thread):
         self.fire_rate = .01 # How long to keep the solenoid open #NO LONGER USED
         self.fire_percentage = .3# What percentage of time to fire/stop firing
         self.raw_image = None
+        self.img_dict = {}
         #self.img_file = "WAVEY_LINES.jpg"
         #self.img_file = "Dandelion.jpg"
         #self.img_file = "IMAGE.jpg"
@@ -189,8 +190,26 @@ class PavementPainter(threading.Thread):
             self.raw_image = self.raw_image.point(lambda i: i > 128 and 255)    # Converts image to a binary image
             # self.raw_image.show("Binary image")
             # print(numpy.array(self.raw_image))
+
+            # Construct a sparse dictionary representing image
+            self.createSparseDict()
+
         except Exception as e:
             print(e)
+
+    def createSparseDict(self):
+        # Construct a sparse dictionary representing image
+        row_counter = 0
+        col_counter = 0
+        for pixel in numpy.nditer(numpy.array(self.raw_image)):
+            if pixel == 0:
+                self.img_dict[row_counter][col_counter] = 1
+            col_counter += 1
+            if col_counter == self.num_solenoids:
+                row_counter += 1
+                col_counter = 0
+        print(self.img_dict)
+
 
     def paint(self):
         """
