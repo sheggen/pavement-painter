@@ -226,8 +226,9 @@ class PavementPainter(threading.Thread):
         counter = 0
         fire_list = []
 
-            
+        st = time.time()    
         for pixel in numpy.nditer(numpy.array(self.raw_image)):
+            
             if GPIO.input(self.speed_up_button):
                 self.scale_factor += 10
                 print("Speed up: ", self.scale_factor)
@@ -245,14 +246,14 @@ class PavementPainter(threading.Thread):
                 
                 #print(fire_list)
                 new_speed = self.obd2.get_speed()
-                # print("Speed in main from obd: ", new_speed)
+                #print("Speed in main from obd: ", new_speed)
                 if new_speed:
                     self.camera.camera.annotate_text = "{} KPH/{:0.2f} MPH".format(new_speed,
                                                                  new_speed/0.621371)
                     # self.camera.camera.annotate_background = picamera.color.Color('#000')
 
                     self.adjust_speed(new_speed)
-                st = datetime.datetime.now()
+                #st = datetime.datetime.now()
                 #if new_speed > 8:
                 for solenoid in fire_list:
                     self.fire(solenoid)
@@ -265,7 +266,7 @@ class PavementPainter(threading.Thread):
                 counter = 0
                 fire_list = []
                 #print("--------------------------------------")
-                
+        print("Paint time:", time.time() - st)
 
     def fire(self, solenoid):
         """
