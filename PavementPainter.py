@@ -214,27 +214,26 @@ class PavementPainter(threading.Thread):
 
         :return: None
         """
+        st = time.time()
 
         # Paint from the list (slow)
-        #st = time.time()
         #self.paint_from_list()
-        #print("Paint time:", time.time() - st)
 
         # Paint from the dictionary (faster?)
-        st = time.time()
         self.paint_from_dict()
-        print("Paint time:", time.time() - st)
+        new_speed = self.obd2.get_speed()
+        if new_speed:
 
+            #self.camera.camera.annotate_text = "{} KPH/{:0.2f} MPH".format(new_speed,
+             #                                                              new_speed / 0.621371)
+
+            self.adjust_speed(new_speed)
+
+        print("Paint time:", time.time() - st)
 
     def paint_from_dict(self):
         for i in range(self.new_height):             
-            new_speed = self.obd2.get_speed()
-            if new_speed:
 
-                #self.camera.camera.annotate_text = "{} KPH/{:0.2f} MPH".format(new_speed,
-                 #                                                              new_speed / 0.621371)
-
-                self.adjust_speed(new_speed)
             for k in self.img_dict.get(i, []):
                 self.fire(k)
             # time.sleep((self.fire_duration * self.fire_percentage)/6)
