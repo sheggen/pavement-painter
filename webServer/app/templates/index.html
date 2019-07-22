@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block scripts %}
+    {{super()}}
+    <script type=text/javascript src="{{url_for('static', filename='js/index.js') }}"></script>
+{% endblock %}
+{% block app_content %}
+    <h1>Hi, User!</h1>
+    <!--<h2>Live Preview</h2>-->
+    <!--<img style="margin-left: auto; margin-right: auto;" src="stream.mjpg"/>-->
+    <div class="col-md-6">
+        <form id="imageUploadForm" action="addImage" method="POST" enctype='multipart/form-data' style="border: 1px lightgray solid; border-radius: 10px; padding: 10px;">
+            <div class="form-group">
+                <label for="inputImage">Upload an Image:</label>
+                <input type="file" id="inputImage" name="inputImage" style="margin-bottom: 20px;">
+                <button class="btn btn-default" name="submit" type="submit">Save</button>
+            </div>
+        </form>
+    </div>
+    <div class="col-md-6"></div>
+    <div class="col-md-12">
+        <h2>Pick an image to print</h2>
+        <section id="imgSection">
+            {% for image in images %}
+                    <button class="dasButtons btn {% if loop.index == 1 %}btn-info{% else %}btn-default{% endif %}"
+                            id="{{image}}"
+                            onclick=switchActiveImage(this,'{{image}}')
+                            style="border: 1px lightgray solid; border-radius: 8px;">
+                        {{image}}
+                        <img src="{{ url_for('static', filename='images/' + image) }}" height="150px" />
+                    </button>
+            {% endfor %}
+        </section>
+    </div>
+
+
+{% endblock %}

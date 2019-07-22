@@ -1,4 +1,4 @@
-from LiveCamera import *
+from webServer.app.controllers.liveCamera import *
 from PavementPainter import *
 
 
