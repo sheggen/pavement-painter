@@ -4,10 +4,10 @@
     <script type=text/javascript src="{{url_for('static', filename='js/index.js') }}"></script>
 {% endblock %}
 {% block app_content %}
-    <h1>Hi, User!</h1>
-    <!--<h2>Live Preview</h2>-->
-    <!--<img style="margin-left: auto; margin-right: auto;" src="stream.mjpg"/>-->
-    <div class="col-md-6">
+<h1>Hi, User!</h1>
+<h2>Live Preview</h2>
+<img src="{{ url_for('video_feed') }}">
+<div class="col-md-6">
         <form id="imageUploadForm" action="addImage" method="POST" enctype='multipart/form-data' style="border: 1px lightgray solid; border-radius: 10px; padding: 10px;">
             <div class="form-group">
                 <label for="inputImage">Upload an Image:</label>
