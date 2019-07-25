@@ -3,8 +3,8 @@ import yaml
 from flask_bootstrap import Bootstrap
 import os
 
-from webServer.app.PavementPainter import PavementPainter
-from webServer.app.controllers.liveCamera import LiveCamera
+from app.PavementPainter import PavementPainter
+from app.controllers.liveCamera import LiveCamera
 
 app = Flask(__name__)
 bootstrap = Bootstrap(app)
