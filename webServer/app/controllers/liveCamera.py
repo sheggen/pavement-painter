@@ -47,7 +47,7 @@ class LiveCamera(threading.Thread):
             server = StreamingServer(address, StreamingHandler)
             server.serve_forever()
         finally:
-            camera.stop_recording()
+            self.camera.stop_recording()
 
     
 class StreamingOutput():

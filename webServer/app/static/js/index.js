@@ -22,18 +22,30 @@ var activeButton = null;
 
 function switchActiveImage(btn, filename) {
     $.ajax({
-                method: "POST",
-                url: "switchActiveImage/"+filename,
-                data: JSON.stringify({"filename": filename}),
-                processData: false,
-                contentType: "application/json",
+        method: "POST",
+        url: "switchActiveImage/"+filename,
+        data: JSON.stringify({"filename": filename}),
+        processData: false,
+        contentType: "application/json",
 
-                success: function(response) {
-                    if (response["success"]) {
-                        allBtns = $("#imgSection").find(".dasButtons").removeClass("btn-info");
-                        $(btn).addClass("btn-info");
-                    }
-                }
-            })
+        success: function(response) {
+            if (response["success"]) {
+                allBtns = $("#imgSection").find(".dasButtons").removeClass("btn-info");
+                $(btn).addClass("btn-info");
+            }
+        }
+    })
 }
 
+function buttonPressed(btn) {
+    $.ajax({
+        method: "GET",
+        url: "activateButton/"+btn.id,
+        success: function(response) {
+            if (response["success"]) {
+                allBtns = $("#imgSection").find(".dasButtons").removeClass("btn-info");
+                $(btn).addClass("btn-info");
+            }
+        }
+    })
+}

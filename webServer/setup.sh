@@ -26,6 +26,6 @@ fi
 
 pip3 install -r requirements.txt
 
-git clone https://github.com/adafruit/Adafruit_CircuitPython_PCA9685
-
-python Adafruit_CircuitPython_PCA9685/setup.py install
+#git clone https://github.com/adafruit/Adafruit_CircuitPython_PCA9685
+#
+#python Adafruit_CircuitPython_PCA9685/setup.py install

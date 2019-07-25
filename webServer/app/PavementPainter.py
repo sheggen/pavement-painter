@@ -1,8 +1,8 @@
 from PIL import Image
 import numpy
 import time, datetime
-from PCA_9685 import PCA_9685
-from OBD2 import *
+from webServer.app.PCA_9685 import PCA_9685
+from webServer.app.OBD2 import *
 import threading
 import RPi.GPIO as GPIO
 import sys
@@ -10,7 +10,7 @@ numpy.set_printoptions(threshold=sys.maxsize)  # for printing array during testi
 
 
 class PavementPainter(threading.Thread):    
-    def __init__(self, threadID, camera):
+    def __init__(self, threadID):
         """
         Initializes a new Pavement Painter object and starts it painting.
         """
@@ -23,16 +23,6 @@ class PavementPainter(threading.Thread):
         self.fire_percentage = .3# What percentage of time to fire/stop firing
         self.raw_image = None
         self.img_dict = {}
-        #self.img_file = "WAVEY_LINES.jpg"
-        #self.img_file = "Dandelion.jpg"
-        #self.img_file = "IMAGE.jpg"
-        self.img_file = "pigeon2.jpg"
-        self.img_file = "passpig2j.jpg"
-        self.img_file = "American_Chestnut4.jpg"
-        self.img_file = "pigeon_flapping11.jpg"
-        #self.img_file = "bird_pom_45X.jpg"
-
-        #self.img_file = "Brook_trout_template45.jpg"
         self.img_file = "pigeon_flapping12.jpg"
         self.new_height = 0         # Height of the image after resizing
         
@@ -64,9 +54,6 @@ class PavementPainter(threading.Thread):
         # For threading with the live feed camera
         threading.Thread.__init__(self)
         self.threadID = threadID
-        
-        # Access the camera object to update speed on live display
-        self.camera = camera
         
 
     def run(self):

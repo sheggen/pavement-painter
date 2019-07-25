@@ -4,19 +4,21 @@ app.py is the starting point of the application; to run the app, in the console,
 import os
 import sys
 
-from app import app
+from webServer.app import app
+
+
 # sys.path.insert(0,'/home/ubuntu/workspace/')
 
 # Builds the server configuration
 if os.getenv('IP'):
-    IP    = os.getenv('IP')
+    IP = os.getenv('IP')
 else:
-    IP    = '0.0.0.0'
+    IP = '0.0.0.0'
 
 if os.getenv('PORT'):
-    PORT  = int(os.getenv('PORT'))
+    PORT = int(os.getenv('PORT'))
 else:
-    PORT  = 8080
+    PORT = 8080
 
 if __name__ == "__main__":
     # Print statements go to your log file in production; to your console while developing

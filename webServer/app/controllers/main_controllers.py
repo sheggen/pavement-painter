@@ -1,9 +1,10 @@
 # from flask import render_template  #, redirect, url_for, request, g, current_app
 # from flask_login import current_user, login_required
 from flask import jsonify, render_template, request, redirect, url_for, Response
-from app.controllers import main_bp
-# from app.controllers.liveCamera import *
-from app import app, allowed_file, cfg
+from webServer.app.controllers import main_bp
+from webServer.app.controllers.liveCamera import *
+from webServer.app import lc, pp
+from webServer.app import app, allowed_file, cfg
 from werkzeug.utils import secure_filename
 import os, cv2, socket, io
 
@@ -20,6 +21,7 @@ def videoStream():
         cv2.imwrite("pic.jpg", frame)
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + open('pic.jpg', 'rb').read() + b'\r\n')
+
 @main_bp.route('/video_feed')
 def video_feed():
     return Response(videoStream(),
@@ -48,4 +50,9 @@ def changeImage():
 @main_bp.route("/switchActiveImage/<filename>", methods=["POST"])
 def switchActiveImage(filename):
     print("The server is now using ", filename)
+    return jsonify({"success": True})
+
+@main_bp.route("/activateButton/<button>", methods=["GET"])
+def activateButton(button):
+    print("Pressed ", button)
     return jsonify({"success": True})
