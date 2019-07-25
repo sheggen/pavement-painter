@@ -1,10 +1,10 @@
 # from flask import render_template  #, redirect, url_for, request, g, current_app
 # from flask_login import current_user, login_required
 from flask import jsonify, render_template, request, redirect, url_for, Response
-from webServer.app.controllers import main_bp
-from webServer.app.controllers.liveCamera import *
-from webServer.app import lc, pp
-from webServer.app import app, allowed_file, cfg
+from app.controllers import main_bp
+from app.controllers.liveCamera import *
+from app import lc, pp
+from app import app, allowed_file, cfg
 from werkzeug.utils import secure_filename
 import os, cv2, socket, io
 

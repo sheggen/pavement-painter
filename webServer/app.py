@@ -4,7 +4,7 @@ app.py is the starting point of the application; to run the app, in the console,
 import os
 import sys
 
-from webServer.app import app
+from app import app
 
 
 # sys.path.insert(0,'/home/ubuntu/workspace/')

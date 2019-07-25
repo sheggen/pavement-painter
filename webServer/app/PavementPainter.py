@@ -1,8 +1,8 @@
 from PIL import Image
 import numpy
 import time, datetime
-from webServer.app.PCA_9685 import PCA_9685
-from webServer.app.OBD2 import *
+from app.PCA_9685 import PCA_9685
+from app.OBD2 import *
 import threading
 import RPi.GPIO as GPIO
 import sys
