@@ -26,6 +26,12 @@ fi
 
 pip3 install -r requirements.txt
 
-#git clone https://github.com/adafruit/Adafruit_CircuitPython_PCA9685
-#
-#python Adafruit_CircuitPython_PCA9685/setup.py install
+git clone https://github.com/adafruit/Adafruit_CircuitPython_PCA9685
+
+cd Adafruit_CircuitPython_PCA9685
+
+python setup.py install
+
+cd ..
+
+ln -s /usr/local/python/cv2/python-3.7/cv2.cpython-37m-arm-linux-gnueabihf.so venv/lib/python3.7/site-packages/cv2.so

@@ -6,7 +6,6 @@ import sys
 
 from app import app
 
-
 # sys.path.insert(0,'/home/ubuntu/workspace/')
 
 # Builds the server configuration
@@ -23,7 +22,7 @@ else:
 if __name__ == "__main__":
     # Print statements go to your log file in production; to your console while developing
     print ("Running server at http://{0}:{1}/".format(IP, PORT))
-    app.run(host = IP, port = PORT, debug = True, threaded = True)
+    app.run(host = IP, port = PORT, debug = True)
 
 # The next logical place to look is the app/__init__.py file...
 

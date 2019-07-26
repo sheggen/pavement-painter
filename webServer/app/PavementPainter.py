@@ -14,7 +14,7 @@ class PavementPainter(threading.Thread):
         """
         Initializes a new Pavement Painter object and starts it painting.
         """
-        self.num_solenoids = 45 #Set to the number of solenoids to fire
+        self.num_solenoids = 12 #Set to the number of solenoids to fire
         self.solenoid_spacing = 9.525     # in millimeters (3/8" = 9.525 mm)
         self.scale_factor = 1000000      # 1000000 would print "to scale"
         self.car_speed = 0.01
@@ -23,7 +23,7 @@ class PavementPainter(threading.Thread):
         self.fire_percentage = .3# What percentage of time to fire/stop firing
         self.raw_image = None
         self.img_dict = {}
-        self.img_file = "pigeon_flapping12.jpg"
+        self.img_file = "static/images/Dandelion.jpg"
         self.new_height = 0         # Height of the image after resizing
         
         self.img_matrix = []
