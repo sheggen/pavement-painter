@@ -1,30 +1,15 @@
+
 from flask import Flask
 import yaml
 from flask_bootstrap import Bootstrap
 import os
 
-from app.PavementPainter import PavementPainter
-from app.controllers.liveCamera import LiveCamera
-
 app = Flask(__name__)
 bootstrap = Bootstrap(app)
-
-
-
-# Create a camera object
-#lc = LiveCamera(2)
-
-# Create a PavementPainter object
-#pp = PavementPainter(1)
-
-# Run them both on their own threads
-#pp.start()
-#lc.start()
-
-
 def load_config(file):
     with open(file, 'r') as ymlfile:
         cfg = yaml.load(ymlfile, Loader=yaml.FullLoader)
+    #    print("cfg", cfg)
     return cfg
 
 def check_folder_existance(filepath):
@@ -43,3 +28,19 @@ def allowed_file(filename):
 # Registers blueprints (controllers). These are general routes, like /index
 from app.controllers import main_bp as main_bp
 app.register_blueprint(main_bp)
+
+from app.PavementPainter import PavementPainter
+#from app.controllers.liveCamera import LiveCamera
+
+# Create a camera object
+#lc = LiveCamera(2)
+
+# Create a PavementPainter object
+pp = PavementPainter(1)
+
+# Run them both on their own threads
+pp.start()
+# lc.start()
+
+
+

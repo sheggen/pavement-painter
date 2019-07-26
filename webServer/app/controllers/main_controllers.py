@@ -2,9 +2,11 @@
 # from flask_login import current_user, login_required
 from flask import jsonify, render_template, request, redirect, url_for, Response
 from app.controllers import main_bp
-from app.controllers.liveCamera import *
+# from app.controllers.liveCamera import *
 # from app import lc, pp
-from app import *
+import os
+print(os.getcwd())
+from app import cfg, allowed_file 
 from werkzeug.utils import secure_filename
 import os, cv2, socket, io
 
