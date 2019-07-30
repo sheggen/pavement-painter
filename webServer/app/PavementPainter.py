@@ -25,10 +25,17 @@ class PavementPainter(threading.Thread):
         self.img_dict = {}
         self.img_file = "static/images/Dandelion.jpg"
         self.new_height = 0         # Height of the image after resizing
-        
         self.img_matrix = []
         self.PCAs = []
-        
+
+        # States for web server
+        self.amIPrinting = False
+        self.amIMotorUp = False
+        self.amIMotorDown = False
+        self.amISpeedUp = False
+        self.amISpeedDown = False
+        self.amIFlushing = False
+
         # GPIO pins
         self.initialize_solenoids_button = 13        
         self.start_button = 19
@@ -55,12 +62,42 @@ class PavementPainter(threading.Thread):
         threading.Thread.__init__(self)
         self.threadID = threadID
         
+    def run(self):     # webServerRun       # Switch function name to run(self): to use webserver instead of buttons
+        print("Rain started")
+        while True:
+            self.init_GPIO_2()  # Resets GPIOs since they are cleaned out each loop iteration
 
-    def run(self):
+            # Paint if button was pressed once
+            if self.amIPrinting:
+                self.paint()
+            else:
+                self.stop_all()
+
+            # Move the motors up/down
+            if self.amIMotorUp:
+                GPIO.output(self.dir_L, GPIO.HIGH)
+                GPIO.output(self.dir_R, GPIO.LOW)
+                self.amIMotorUp = not self.amIMotorUp
+            if self.amIMotorDown:
+                GPIO.output(self.dir_R, GPIO.HIGH)
+                GPIO.output(self.dir_L, GPIO.LOW)
+                self.amIMotorDown = not self.amIMotorDown
+
+            # Adjust the speed up/down
+            if self.amISpeedUp:
+                self.scale_factor += 100
+                self.amISpeedUp = not self.amISpeedUp
+            if self.amISpeedDown:
+                self.scale_factor -= 100
+                self.amISpeedDown = not self.amISpeedDown
+
+            GPIO.cleanup()
+
+
+    def GPIOrun(self):          # Switch function name to run(self): to use buttons instead of webserver
         # Let it rain
         print("Rain started")
         while True:
-            
             self.init_GPIO()  # Resets GPIOs since they are cleaned out each loop iteration
             # Lift up/down buttons
             while GPIO.input(self.lift_up_button):
@@ -100,7 +137,14 @@ class PavementPainter(threading.Thread):
                     self.scale_factor -= 100
                     print("Speed down: ", self.scale_factor)
             GPIO.cleanup()
-            
+
+
+    def init_GPIO_2(self):
+        GPIO.setmode(GPIO.BCM) # Broadcom pin-numbering scheme
+        GPIO.setup(self.dir_L, GPIO.OUT)
+        GPIO.setup(self.dir_R, GPIO.OUT)
+
+
     def init_GPIO(self):
         
         GPIO.setmode(GPIO.BCM) # Broadcom pin-numbering scheme
