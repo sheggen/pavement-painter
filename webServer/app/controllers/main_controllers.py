@@ -3,7 +3,7 @@
 from flask import jsonify, render_template, request, redirect, url_for, Response
 from app.controllers import main_bp
 # from app.controllers.liveCamera import *
-# from app import lc, pp
+from app import pp
 import os
 print(os.getcwd())
 from app import cfg, allowed_file 
@@ -57,4 +57,17 @@ def switchActiveImage(filename):
 @main_bp.route("/activateButton/<button>", methods=["GET"])
 def activateButton(button):
     print("Pressed ", button)
+    if button == "startStopPrint":
+        pp.amIPrinting = not pp.amIPrinting
+    if button == "motorUp":
+        pp.amIMotorUp = True
+    if button == "motorDown":
+        pp.amIMotorDown = True
+    if button == "speedUp":
+        pp.amISpeedUp = True
+    if button == "speedDown":
+        pp.amISpeedDown = True
+    if button == "flush":
+        pp.amIFlushing = True
+
     return jsonify({"success": True})
