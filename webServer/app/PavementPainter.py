@@ -75,19 +75,23 @@ class PavementPainter(threading.Thread):
 
             # Move the motors up/down
             if self.amIMotorUp:
+                print("Motor up")
                 GPIO.output(self.dir_L, GPIO.HIGH)
                 GPIO.output(self.dir_R, GPIO.LOW)
                 self.amIMotorUp = not self.amIMotorUp
             if self.amIMotorDown:
+                print("Motor Down")
                 GPIO.output(self.dir_R, GPIO.HIGH)
                 GPIO.output(self.dir_L, GPIO.LOW)
                 self.amIMotorDown = not self.amIMotorDown
 
             # Adjust the speed up/down
             if self.amISpeedUp:
+                print("Speed up")
                 self.scale_factor += 100
                 self.amISpeedUp = not self.amISpeedUp
             if self.amISpeedDown:
+                print("Speed down")
                 self.scale_factor -= 100
                 self.amISpeedDown = not self.amISpeedDown
 
@@ -182,17 +186,17 @@ class PavementPainter(threading.Thread):
         for i in range(self.num_solenoids):
             self.stop_fire(i)
             #time.sleep(.01)
-        print("Stopping print")
+        # print("Stopping print")
     
     def init_solenoids(self):
         self.stop_all()
         # input("Press any key to begin")
-        print("Firing all to test")
+        #print("Firing all to test")
         for i in range(self.num_solenoids):
             self.fire(i)
             time.sleep(1)        
             self.stop_fire(i)
-        print("Test complete")
+        #print("Test complete")
         
     def adjust_speed(self, speed):
         """

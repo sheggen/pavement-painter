@@ -25,10 +25,6 @@ def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in cfg['allowed_extensions']
 
-# Registers blueprints (controllers). These are general routes, like /index
-from app.controllers import main_bp as main_bp
-app.register_blueprint(main_bp)
-
 from app.PavementPainter import PavementPainter
 #from app.controllers.liveCamera import LiveCamera
 
@@ -42,5 +38,6 @@ pp = PavementPainter(1)
 pp.start()
 # lc.start()
 
-
-
+# Registers blueprints (controllers). These are general routes, like /index
+from app.controllers import main_bp as main_bp
+app.register_blueprint(main_bp)

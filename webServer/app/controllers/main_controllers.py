@@ -3,10 +3,8 @@
 from flask import jsonify, render_template, request, redirect, url_for, Response
 from app.controllers import main_bp
 # from app.controllers.liveCamera import *
-from app import pp
 import os
-print(os.getcwd())
-from app import cfg, allowed_file 
+from app import cfg, allowed_file, pp 
 from werkzeug.utils import secure_filename
 import os, cv2, socket, io
 
