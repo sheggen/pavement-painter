@@ -9,12 +9,20 @@
 <img src="{{ url_for('main.video_feed') }}">
 <h2>Controls</h2>
 <div class="col-md-12">
-    <button class="btn btn-default btn-lg" id="motorUp" onclick="buttonPressed(this)">Motor Up</button>
-    <button class="btn btn-default btn-lg" id="motorDown" onclick="buttonPressed(this)">Motor Down</button>
-    <button class="btn btn-default btn-lg" id="speedUp" onclick="buttonPressed(this)">Speed Up</button>
-    <button class="btn btn-default btn-lg" id="speedDown" onclick="buttonPressed(this)">Speed Down</button>
-    <button class="btn btn-default btn-lg" id="startStopPrint" onclick="buttonPressed(this)">Start Printing</button>
-    <button class="btn btn-default btn-lg" id="init" onclick="buttonPressed(this)">Flush Solenoids</button>
+    <div class="col-md-4">
+        <button class="col-md-12 btn btn-default btn-lg" id="motorUp" onclick="buttonPressed(this)">Motor Up</button>
+        <button class="col-md-12 btn btn-default btn-lg" id="motorDown" onclick="buttonPressed(this)">Motor Down</button>
+    </div>
+    <div class="col-md-4">
+        <button class="col-md-12 btn btn-default btn-lg" id="speedUp" onclick="buttonPressed(this)">Speed Up</button>
+        <button class="col-md-12 btn btn-default btn-lg" id="speedDown" onclick="buttonPressed(this)">Speed Down</button>
+    </div>
+    <div class="col-md-4">
+        <button class="col-md-12 btn btn-default btn-lg" id="startStopPrint" onclick="buttonPressed(this)">Start Printing</button>
+        <button class="col-md-12 btn btn-default btn-lg" id="init" onclick="buttonPressed(this)">Flush Solenoids</button>
+    </div>
+
+
 </div>
 <div class="col-md-6">
         <form id="imageUploadForm" action="addImage" method="POST" enctype='multipart/form-data' style="border: 1px lightgray solid; border-radius: 10px; padding: 10px;">
