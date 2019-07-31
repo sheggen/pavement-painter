@@ -14,7 +14,7 @@ class PavementPainter(threading.Thread):
         """
         Initializes a new Pavement Painter object and starts it painting.
         """
-        self.num_solenoids = 12 #Set to the number of solenoids to fire
+        self.num_solenoids = 152 #Set to the number of solenoids to fire
         self.solenoid_spacing = 9.525     # in millimeters (3/8" = 9.525 mm)
         self.scale_factor = 1000000      # 1000000 would print "to scale"
         self.car_speed = 0.01
@@ -67,7 +67,6 @@ class PavementPainter(threading.Thread):
         print("Rain started")
         while True:
             self.init_GPIO_2()  # Resets GPIOs since they are cleaned out each loop iteration
-
             # Paint if button was pressed once
             if self.amIPrinting:
                 self.paint()
@@ -95,6 +94,7 @@ class PavementPainter(threading.Thread):
             # Flush the solenoids
             if self.amIFlushing:
                 self.init_solenoids()
+                self.amIFlushing = False
             GPIO.cleanup()
 
 
@@ -194,7 +194,7 @@ class PavementPainter(threading.Thread):
         #print("Firing all to test")
         for i in range(self.num_solenoids):
             self.fire(i)
-            time.sleep(1)        
+            time.sleep(.25)        
             self.stop_fire(i)
         #print("Test complete")
         
@@ -256,25 +256,25 @@ class PavementPainter(threading.Thread):
              #                                                              new_speed / 0.621371)
             self.adjust_speed(new_speed)
 
-        st = time.time()
+        # st = time.time()
 
         # Paint from the list (slow)
         #self.paint_from_list()
 
         # Paint from the dictionary (faster?)
         self.paint_from_dict()
-
         # print("Paint time:", time.time() - st)
 
     def paint_from_dict(self):
         for i in range(self.new_height):             
             for k in self.img_dict.get(i, []):
                 self.fire(k)
+            # time.sleep(.1)
             # time.sleep((self.fire_duration * self.fire_percentage))
 
-            self.reset()  # TODO Does this work?
-            #for k in self.img_dict.get(i, []):
-            #    self.stop_fire(k)
+            # self.reset()  # TODO Does this work?
+            for k in self.img_dict.get(i, []):
+                self.stop_fire(k)
             # time.sleep((self.fire_duration * (1 - self.fire_percentage)))
 
 
@@ -323,12 +323,14 @@ class PavementPainter(threading.Thread):
         :param solenoid: solenoid address
         :return: None
         """
-        # print("Firing PCA: ", solenoid//16, ", Solenoid: ", solenoid % 16)
+        print("Firing PCA: ", solenoid//16, ", Solenoid: ", solenoid % 16)
         self.PCAs[solenoid//16].fire_away(solenoid % 16)   # Picks the right PCA, then fires the right solenoid
         
     def stop_fire(self, solenoid):
         self.PCAs[solenoid//16].seize_fire(solenoid % 16)
 
     def reset(self):
+        pass
         for pca in self.PCAs:
             pca.reset()
+        self.init_PCAs()

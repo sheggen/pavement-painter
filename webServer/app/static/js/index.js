@@ -65,6 +65,7 @@ $(document).ready(function() {
  			$(this).removeClass("btn-info");
 		      } else {
 			$(this).addClass("btn-info");
+			$(this).animate({backgroundColor: '#FFF'}, 'slow');
 		      } 
 		    } else {
 			console.log("ID isn't startStopButton");
