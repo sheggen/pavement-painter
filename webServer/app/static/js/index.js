@@ -37,14 +37,42 @@ function switchActiveImage(btn, filename) {
     })
 }
 
-function buttonPressed(btn) {
-    $.ajax({
+/* Press and hold handlers */
+
+var item = document.querySelector("#motorUp");
+
+// Listening for the mouse and touch events
+item.addEventListener("mousedown", pressingDown, false);
+item.addEventListener("mouseup", notPressingDown, false);
+item.addEventListener("mouseleave", notPressingDown, false);
+
+item.addEventListener("touchstart", pressingDown, false);
+item.addEventListener("touchend", notPressingDown, false);
+
+function pressingDown(e) {
+  console.log("Pressing!");
+  /* send the ajax call for motor up to start */
+  $.ajax({
+      method: "GET",
+      url: "activateButton/"+btn.id,
+      success: function(response) {
+          if (response["success"]) {
+              allBtns = $("#imgSection").find(".dasButtons").removeClass("btn-info");
+              $(item).addClass("btn-info");
+          }
+      }
+  })
+}
+
+function notPressingDown(e) {
+  console.log("Not pressing!");
+  /* send the ajax call for motor up to end */
+  $.ajax({
         method: "GET",
         url: "activateButton/"+btn.id,
         success: function(response) {
             if (response["success"]) {
                 allBtns = $("#imgSection").find(".dasButtons").removeClass("btn-info");
-                $(btn).addClass("btn-info");
             }
         }
     })
