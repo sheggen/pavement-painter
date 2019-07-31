@@ -58,14 +58,14 @@ def activateButton(button):
     if button == "startStopPrint":
         pp.amIPrinting = not pp.amIPrinting
     if button == "motorUp":
-        pp.amIMotorUp = True
+        pp.amIMotorUp = not pp.amIMotorUp
     if button == "motorDown":
-        pp.amIMotorDown = True
+        pp.amIMotorDown = not pp.amIMotorDown
     if button == "speedUp":
-        pp.amISpeedUp = True
+        pp.amISpeedUp = not pp.amISpeedUp
     if button == "speedDown":
-        pp.amISpeedDown = True
+        pp.amISpeedDown = not pp.amISpeedDown
     if button == "flush":
-        pp.amIFlushing = True
+        pp.amIFlushing = not pp.amIFlushing
 
     return jsonify({"success": True})

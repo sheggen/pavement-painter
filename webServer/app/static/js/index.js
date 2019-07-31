@@ -40,45 +40,54 @@ function switchActiveImage(btn, filename) {
 /* Press and hold handlers */
 $(document).ready(function() {
     btns = $("#btns_div").find("button");
-    var clickEventType = ((document.ontouchstart!==null)?'click':'touchstart');
     for (btn in btns) {
-        btn.on({
-            mousedown: function() {
-                pressingDown(btn);
+        $(btn).on({
+            "mousedown touchstart": function(e) {
+ 		e.preventDefault();
+		pressingDown(this);
             },
-            mouseup: function() {
-                notPressingDown();
-            },
+            "mouseup touchend": function(e) {
+		if(this.id != "startStopPrint" && this.id != "flush") {
+		  e.preventDefault();	
+                  notPressingDown(this);
+		}
+            }
+	/*	,
             touchstart: function() {
-                pressingDown();
+                pressingDown(this);
             },
             touchend: function() {
-                notPressingDown();
+		if(this.id != "startStopPrint" && this.id != "flush") {
+                  notPressingDown(this);
+		}
             }
-
+*/
         })
     }
 })
 
 function pressingDown(btn) {
-  console.log("Pressing!");
+  console.log("Pressing!", btn.id);
   /* send the ajax call for motor up to start */
-  $.ajax({
+  if (btn.id) {
+    $.ajax({
       method: "GET",
       url: "activateButton/"+btn.id,
       success: function(response) {
           if (response["success"]) {
               allBtns = $("#imgSection").find(".dasButtons").removeClass("btn-info");
-              $(item).addClass("btn-info");
+              $(btn).addClass("btn-info");
           }
       }
-  })
+    })
+  }
 }
 
 function notPressingDown(btn) {
-  console.log("Not pressing!");
-  /* send the ajax call for motor up to end */
-  $.ajax({
+  console.log("Not pressing!", btn.id);
+    /* send the ajax call for motor up to end */
+    if (btn.id) {
+      $.ajax({
         method: "GET",
         url: "activateButton/"+btn.id,
         success: function(response) {
@@ -86,5 +95,6 @@ function notPressingDown(btn) {
                 allBtns = $("#imgSection").find(".dasButtons").removeClass("btn-info");
             }
         }
-    })
+      })
+    }
 }

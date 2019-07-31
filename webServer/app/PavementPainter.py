@@ -75,26 +75,25 @@ class PavementPainter(threading.Thread):
 
             # Move the motors up/down
             if self.amIMotorUp:
-                print("Motor up")
+                print("Motor up started")
                 GPIO.output(self.dir_L, GPIO.HIGH)
                 GPIO.output(self.dir_R, GPIO.LOW)
-                self.amIMotorUp = not self.amIMotorUp
             if self.amIMotorDown:
-                print("Motor Down")
+                print("Motor Down started")
                 GPIO.output(self.dir_R, GPIO.HIGH)
                 GPIO.output(self.dir_L, GPIO.LOW)
-                self.amIMotorDown = not self.amIMotorDown
-
+            
             # Adjust the speed up/down
             if self.amISpeedUp:
                 print("Speed up")
                 self.scale_factor += 100
-                self.amISpeedUp = not self.amISpeedUp
             if self.amISpeedDown:
                 print("Speed down")
                 self.scale_factor -= 100
-                self.amISpeedDown = not self.amISpeedDown
 
+            # Flush the solenoids
+            if self.amIFlushing:
+                self.init_solenoids()
             GPIO.cleanup()
 
 
@@ -263,7 +262,7 @@ class PavementPainter(threading.Thread):
         # Paint from the dictionary (faster?)
         self.paint_from_dict()
 
-        print("Paint time:", time.time() - st)
+        # print("Paint time:", time.time() - st)
 
     def paint_from_dict(self):
         for i in range(self.new_height):             
