@@ -54,24 +54,27 @@ $(document).ready(function() {
 			console.log("Switching to Stop Printing");
 			$(this).text("Stop Printing")
 			$(this).addClass("btn-info");
-			console.log($(".btn-info"));
+			pressingDown(this);
 		      } else {
 			console.log("Switching to Start Printing");
 			$(this).text("Start Printing");
                         $(this).removeClass("btn-info");
+			notPressingDown(this);
 		      }
 		    } else if (this.id == "flush") {
 		      if ($(this).hasClass("btn-info")) {
  			$(this).removeClass("btn-info");
+			notPressingDown(this);
 		      } else {
 			$(this).addClass("btn-info");
 			$(this).animate({backgroundColor: '#FFF'}, 'slow');
+			pressingDown(this);
 		      } 
 		    } else {
 			console.log("ID isn't startStopButton");
 		    	$(this).addClass("btn-info");
+			pressingDown(this);
 		    }
-  	            pressingDown(this);
 	          }
 	        }
             },

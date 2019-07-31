@@ -193,9 +193,12 @@ class PavementPainter(threading.Thread):
         # input("Press any key to begin")
         #print("Firing all to test")
         for i in range(self.num_solenoids):
-            self.fire(i)
-            time.sleep(.25)        
-            self.stop_fire(i)
+            if self.amIFlushing:
+                self.fire(i)
+                time.sleep(.25)        
+                self.stop_fire(i)
+            else:
+                return
         #print("Test complete")
         
     def adjust_speed(self, speed):
@@ -268,7 +271,10 @@ class PavementPainter(threading.Thread):
     def paint_from_dict(self):
         for i in range(self.new_height):             
             for k in self.img_dict.get(i, []):
-                self.fire(k)
+                if self.amIPrinting:
+                    self.fire(k)
+                else:
+                    return
             # time.sleep(.1)
             # time.sleep((self.fire_duration * self.fire_percentage))
 
@@ -323,7 +329,7 @@ class PavementPainter(threading.Thread):
         :param solenoid: solenoid address
         :return: None
         """
-        print("Firing PCA: ", solenoid//16, ", Solenoid: ", solenoid % 16)
+        # print("Firing PCA: ", solenoid//16, ", Solenoid: ", solenoid % 16)
         self.PCAs[solenoid//16].fire_away(solenoid % 16)   # Picks the right PCA, then fires the right solenoid
         
     def stop_fire(self, solenoid):
