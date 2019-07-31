@@ -50,6 +50,8 @@ def changeImage():
 @main_bp.route("/switchActiveImage/<filename>", methods=["POST"])
 def switchActiveImage(filename):
     print("The server is now using ", filename)
+    pp.img_file = filename
+    pp.parse_image()
     return jsonify({"success": True})
 
 @main_bp.route("/activateButton/<button>", methods=["GET"])

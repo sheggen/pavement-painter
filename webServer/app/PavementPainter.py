@@ -23,7 +23,8 @@ class PavementPainter(threading.Thread):
         self.fire_percentage = .3# What percentage of time to fire/stop firing
         self.raw_image = None
         self.img_dict = {}
-        self.img_file = "static/images/Dandelion.jpg"
+        self.img_dir = 'static/images/'
+        self.img_file = "Dandelion.jpg"
         self.new_height = 0         # Height of the image after resizing
         self.img_matrix = []
         self.PCAs = []
@@ -215,7 +216,7 @@ class PavementPainter(threading.Thread):
         :return: None
         """
         try:
-            self.raw_image = Image.open(self.img_file)
+            self.raw_image = Image.open(self.img_dir + self.img_file)
             # self.raw_image.show("Original image")
             self.new_height = int(self.num_solenoids *(self.raw_image.size[1]/self.raw_image.size[0]))
             print(self.new_height)
