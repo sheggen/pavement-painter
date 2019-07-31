@@ -38,18 +38,29 @@ function switchActiveImage(btn, filename) {
 }
 
 /* Press and hold handlers */
+$(document).ready(function() {
+    btns = $("#btns_div").find("button");
+    var clickEventType = ((document.ontouchstart!==null)?'click':'touchstart');
+    for (btn in btns) {
+        btn.on({
+            mousedown: function() {
+                pressingDown(btn);
+            },
+            mouseup: function() {
+                notPressingDown();
+            },
+            touchstart: function() {
+                pressingDown();
+            },
+            touchend: function() {
+                notPressingDown();
+            }
 
-var item = document.querySelector("#motorUp");
+        })
+    }
+})
 
-// Listening for the mouse and touch events
-item.addEventListener("mousedown", pressingDown, false);
-item.addEventListener("mouseup", notPressingDown, false);
-item.addEventListener("mouseleave", notPressingDown, false);
-
-item.addEventListener("touchstart", pressingDown, false);
-item.addEventListener("touchend", notPressingDown, false);
-
-function pressingDown(e) {
+function pressingDown(btn) {
   console.log("Pressing!");
   /* send the ajax call for motor up to start */
   $.ajax({
@@ -64,7 +75,7 @@ function pressingDown(e) {
   })
 }
 
-function notPressingDown(e) {
+function notPressingDown(btn) {
   console.log("Not pressing!");
   /* send the ajax call for motor up to end */
   $.ajax({
