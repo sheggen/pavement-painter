@@ -43,25 +43,47 @@ $(document).ready(function() {
     for (btn in btns) {
         $(btn).on({
             "mousedown touchstart": function(e) {
- 		e.preventDefault();
-		pressingDown(this);
+		/* If flush or startstopprint, toggle button info on/off */
+		if (e.which == 1) {
+		  if (this.id) {
+		    console.log("Pressing " + this.id);
+		    console.log("ID not null");
+		    if (this.id == "startStopPrint") {
+		      console.log("ID is startStopPrint")
+		      if ($(this).text() == "Start Printing") {
+			console.log("Switching to Stop Printing");
+			$(this).text("Stop Printing")
+			$(this).addClass("btn-info");
+			console.log($(".btn-info"));
+		      } else {
+			console.log("Switching to Start Printing");
+			$(this).text("Start Printing");
+                        $(this).removeClass("btn-info");
+		      }
+		    } else if (this.id == "flush") {
+		      if ($(this).hasClass("btn-info")) {
+ 			$(this).removeClass("btn-info");
+		      } else {
+			$(this).addClass("btn-info");
+		      } 
+		    } else {
+			console.log("ID isn't startStopButton");
+		    	$(this).addClass("btn-info");
+		    }
+  	            pressingDown(this);
+	          }
+	        }
             },
             "mouseup touchend": function(e) {
-		if(this.id != "startStopPrint" && this.id != "flush") {
-		  e.preventDefault();	
-                  notPressingDown(this);
+	      if (e.which == 1) {
+		if (this.id) {
+  		  if (this.id != "startStopPrint" && this.id != "flush") {
+  		    $(this).removeClass('btn-info');      
+                    notPressingDown(this);
+	 	  }
 		}
+	      }
             }
-	/*	,
-            touchstart: function() {
-                pressingDown(this);
-            },
-            touchend: function() {
-		if(this.id != "startStopPrint" && this.id != "flush") {
-                  notPressingDown(this);
-		}
-            }
-*/
         })
     }
 })
@@ -72,13 +94,7 @@ function pressingDown(btn) {
   if (btn.id) {
     $.ajax({
       method: "GET",
-      url: "activateButton/"+btn.id,
-      success: function(response) {
-          if (response["success"]) {
-              allBtns = $("#imgSection").find(".dasButtons").removeClass("btn-info");
-              $(btn).addClass("btn-info");
-          }
-      }
+      url: "activateButton/"+btn.id
     })
   }
 }
@@ -89,12 +105,8 @@ function notPressingDown(btn) {
     if (btn.id) {
       $.ajax({
         method: "GET",
-        url: "activateButton/"+btn.id,
-        success: function(response) {
-            if (response["success"]) {
-                allBtns = $("#imgSection").find(".dasButtons").removeClass("btn-info");
-            }
-        }
+        url: "activateButton/"+btn.id
+        
       })
     }
 }

@@ -21,9 +21,8 @@
         <button class="col-xs-12 btn btn-default btn-lg" id="startStopPrint">Start Printing</button>
         <button class="col-xs-12 btn btn-default btn-lg" id="flush">Flush Solenoids</button>
     </div>
-
-
 </div>
+
 <div class="col-md-6">
         <form id="imageUploadForm" action="addImage" method="POST" enctype='multipart/form-data' style="border: 1px lightgray solid; border-radius: 10px; padding: 10px;">
             <div class="form-group">
@@ -32,9 +31,9 @@
                 <button class="btn btn-default" name="submit" type="submit">Save</button>
             </div>
         </form>
-    </div>
-    <div class="col-md-6"></div>
-    <div class="col-md-12">
+</div>
+<div class="col-md-6"></div>
+<div class="col-md-12">
         <h2>Pick an image to print</h2>
         <section id="imgSection">
             {% for image in images %}
@@ -47,7 +46,6 @@
                     </button>
             {% endfor %}
         </section>
-    </div>
-
+</div>
 
 {% endblock %}
