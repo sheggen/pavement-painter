@@ -5,7 +5,7 @@ from app.PCA_9685 import PCA_9685
 from app.OBD2 import *
 import threading
 import RPi.GPIO as GPIO
-import sys
+import sys, os
 numpy.set_printoptions(threshold=sys.maxsize)  # for printing array during testing
 
 
@@ -23,7 +23,7 @@ class PavementPainter(threading.Thread):
         self.fire_percentage = .3# What percentage of time to fire/stop firing
         self.raw_image = None
         self.img_dict = {}
-        self.img_dir = 'static/images/'
+        self.img_dir = 'app/static/images/'
         self.img_file = "Dandelion.jpg"
         self.new_height = 0         # Height of the image after resizing
         self.img_matrix = []
@@ -76,20 +76,20 @@ class PavementPainter(threading.Thread):
 
             # Move the motors up/down
             if self.amIMotorUp:
-                print("Motor up started")
+                # print("Motor up started")
                 GPIO.output(self.dir_L, GPIO.HIGH)
                 GPIO.output(self.dir_R, GPIO.LOW)
             if self.amIMotorDown:
-                print("Motor Down started")
+                # print("Motor Down started")
                 GPIO.output(self.dir_R, GPIO.HIGH)
                 GPIO.output(self.dir_L, GPIO.LOW)
             
             # Adjust the speed up/down
             if self.amISpeedUp:
-                print("Speed up")
+                # print("Speed up")
                 self.scale_factor += 100
             if self.amISpeedDown:
-                print("Speed down")
+                # print("Speed down")
                 self.scale_factor -= 100
 
             # Flush the solenoids
@@ -216,6 +216,7 @@ class PavementPainter(threading.Thread):
         :return: None
         """
         try:
+            # print(os.getcwd())
             self.raw_image = Image.open(self.img_dir + self.img_file)
             # self.raw_image.show("Original image")
             self.new_height = int(self.num_solenoids *(self.raw_image.size[1]/self.raw_image.size[0]))
@@ -226,7 +227,7 @@ class PavementPainter(threading.Thread):
             # self.raw_image.show("Black and white image")
             self.raw_image = self.raw_image.point(lambda i: i > 128 and 255)    # Converts image to a binary image
             # self.raw_image.show("Binary image")
-            #print(numpy.array(self.raw_image))
+            # print(numpy.array(self.raw_image))
 
             # Construct a sparse dictionary representing image
             self.createSparseDict()

@@ -77,36 +77,50 @@ $(document).ready(function() {
             "mouseup touchend": function(e) {
 	      if (e.which == 1) {
 		if (this.id) {
+		  console.log("Button released: " + this.id)
   		  if (this.id != "startStopPrint" && this.id != "flush") {
-  		    $(this).removeClass('btn-info');      
-                    notPressingDown(this);
+  		    $(this).removeClass('btn-info');
+                    console.log("Calling not pressed");
+		    notPressingDown(this);
 	 	  }
 		}
 	      }
             }
         })
     }
+
+    /* Updating vehicle speed */
+    let timer1 = setInterval(() => updateSpeed(), 1000);
 })
 
 function pressingDown(btn) {
   console.log("Pressing!", btn.id);
-  /* send the ajax call for motor up to start */
   if (btn.id) {
     $.ajax({
       method: "GET",
-      url: "activateButton/"+btn.id
+      url: "activateButton/" + btn.id + "/True"
     })
   }
 }
 
 function notPressingDown(btn) {
   console.log("Not pressing!", btn.id);
-    /* send the ajax call for motor up to end */
     if (btn.id) {
       $.ajax({
         method: "GET",
-        url: "activateButton/"+btn.id
-        
+        url: "activateButton/" + btn.id + "/False" 
       })
     }
+}
+
+function updateSpeed() {
+  $.ajax({
+    method: "GET",
+    url: "currentSpeed",
+    success: function (response) {
+      $("#currentSpeed").text(response.split(" ")[0]);
+      $("#scaleFactor").text(response.split(" ")[1]);
+      /*console.log("Rates updated" + $("#fireRate").text() + $("#currentSpeed").text() )*/
+    }
+  })
 }

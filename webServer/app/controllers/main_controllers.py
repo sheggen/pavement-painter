@@ -27,6 +27,12 @@ def video_feed():
     return Response(videoStream(),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
+@main_bp.route("/currentSpeed", methods=['GET'])
+def currentSpeed():
+    # print("Returning speeds")
+    return str(pp.obd2.get_speed()) + " " + str(pp.scale_factor)
+
+
 @main_bp.route("/addImage", methods=["POST"])
 def changeImage():
     data = request.files
@@ -54,20 +60,20 @@ def switchActiveImage(filename):
     pp.parse_image()
     return jsonify({"success": True})
 
-@main_bp.route("/activateButton/<button>", methods=["GET"])
-def activateButton(button):
-    print("Pressed ", button)
+@main_bp.route("/activateButton/<button>/<state>", methods=["GET"])
+def activateButton(button, state):
+    print("Pressed ", button, state)
     if button == "startStopPrint":
-        pp.amIPrinting = not pp.amIPrinting
+        pp.amIPrinting = True if state == "True" else False
     if button == "motorUp":
-        pp.amIMotorUp = not pp.amIMotorUp
+        pp.amIMotorUp = True if state == "True" else False
     if button == "motorDown":
-        pp.amIMotorDown = not pp.amIMotorDown
+        pp.amIMotorDown = True if state == "True" else False
     if button == "speedUp":
-        pp.amISpeedUp = not pp.amISpeedUp
+        pp.amISpeedUp = True if state == "True" else False
     if button == "speedDown":
-        pp.amISpeedDown = not pp.amISpeedDown
+        pp.amISpeedDown = True if state == "True" else False
     if button == "flush":
-        pp.amIFlushing = not pp.amIFlushing
+        pp.amIFlushing = True if state == "True" else False
 
     return jsonify({"success": True})
