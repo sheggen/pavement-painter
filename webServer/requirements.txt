@@ -1,15 +1,11 @@
 adafruit-blinka
-Adafruit-PureIO==0.2.3
 circuitpython-build-tools
-Pillow==6.1.0
-Adafruit-Blinka==2.2.0
 adafruit-circuitpython-busdevice==3.0.0
 adafruit-circuitpython-lis3dh==5.0.0
 adafruit-circuitpython-pca9685==3.2.5
 adafruit-circuitpython-register==1.7.1
 Adafruit-PlatformDetect==1.2.1
 Adafruit-PureIO==0.2.3
-circuitpython-build-tools==1.2.7
 Click==7.0
 dominate==2.3.5
 Flask==1.1.1
