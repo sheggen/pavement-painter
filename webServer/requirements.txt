@@ -19,7 +19,7 @@ picamera==1.13
 Pillow==6.1.0
 Pint==0.7.2
 pyserial==3.4
-PyYAML==5.1.1
+PyYAML==5.4
 rpi-ws281x==4.2.2
 RPi.GPIO==0.7.0
 semver==2.8.1
